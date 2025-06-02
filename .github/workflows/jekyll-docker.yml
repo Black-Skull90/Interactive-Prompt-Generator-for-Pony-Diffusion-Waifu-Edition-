@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light"> <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waifu Pony Diffusion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-primary-light: #f0f4f8; --bg-secondary-light: #ffffff; --text-primary-light: #2c3e50; --text-secondary-light: #34495e; --text-muted-light: #555; --border-light: #e0e0e0; --input-bg-light: #f8f9fa; --input-border-light: #ccc; --accent-color-light: #4A90E2; --accent-color-darker-light: #357ABD; --danger-color-light: #e74c3c; --danger-color-darker-light: #c0392b;
+            --bg-primary-dark: #1a202c; --bg-secondary-dark: #2d3748; --text-primary-dark: #e2e8f0; --text-secondary-dark: #cbd5e0; --text-muted-dark: #a0aec0; --border-dark: #4a5568; --input-bg-dark: #4a5568; --input-border-dark: #718096; --accent-color-dark: #63b3ed; --accent-color-darker-dark: #4299e1; --danger-color-dark: #f56565; --danger-color-darker-dark: #e53e3e;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-primary); color: var(--text-secondary); transition: background-color 0.3s, color 0.3s; }
+        .container { max-width: 900px; margin: 2rem auto; padding: 1.5rem; background-color: var(--bg-secondary); border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); transition: background-color 0.3s; }
+        h1 { color: var(--text-primary); text-align: center; margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; }
+        h2 { color: var(--text-secondary); margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.5rem; font-weight: 600; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
+        label, .label-text { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-weight: 500; }
+        select, input[type="text"], input[type="range"] { width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 1px solid var(--input-border); border-radius: 8px; box-sizing: border-box; background-color: var(--input-bg); color: var(--text-secondary); transition: border-color 0.3s, background-color 0.3s, color 0.3s; }
+        select:focus, input[type="text"]:focus, input[type="range"]:focus { border-color: var(--accent-color); outline: none; }
+        
+        html.dark select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a0aec0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.5em 1.5em; padding-right: 2.5rem; }
+        
+        .checkbox-group label, .radio-group label { display: inline-flex; align-items: center; margin-right: 1rem; margin-bottom: 0.5rem; font-weight: normal; color: var(--text-muted); }
+        .checkbox-group input[type="checkbox"], .radio-group input[type="radio"] { margin-right: 0.5rem; accent-color: var(--accent-color); }
+        textarea { width: 100%; height: 150px; padding: 0.75rem; margin-bottom: 0.5rem; border: 1px solid var(--input-border); border-radius: 8px; resize: vertical; background-color: var(--input-bg); color: var(--text-secondary); }
+        button { background-color: var(--accent-color); color: var(--bg-secondary); padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500; transition: background-color 0.3s; margin-right: 0.5rem; }
+        button:hover { background-color: var(--accent-color-darker); }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        html.dark button:disabled { background-color: #555; }
+        button.secondary { background-color: var(--text-muted); color: var(--bg-secondary); }
+        button.secondary:hover { filter: brightness(1.2); }
+        button.danger { background-color: var(--danger-color); color: white; }
+        button.danger:hover { background-color: var(--danger-color-darker); }
+
+        .grid-cols-fill { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+        .switch-field { display: flex; align-items: center; margin-bottom: 1rem; overflow: hidden; border-radius: 8px; border: 1px solid var(--input-border); width: fit-content; }
+        .switch-field input { position: absolute !important; clip: rect(0, 0, 0, 0); height: 1px; width: 1px; border: 0; overflow: hidden; }
+        .switch-field label { background-color: var(--input-bg); color: var(--text-muted); font-size: 1rem; line-height: 1; text-align: center; padding: 0.75rem 1.25rem; margin: 0; border-right: 1px solid var(--input-border); transition: all 0.1s ease-in-out; cursor: pointer; }
+        .switch-field label:last-of-type { border-right: 0; }
+        .switch-field input:checked + label { background-color: var(--accent-color); color: var(--bg-secondary); box-shadow: none; }
+        #bustSizeValue { display: inline-block; margin-left: 10px; font-weight: bold; color: var(--accent-color); }
+        .hidden { display: none; }
+        .top-controls { position: absolute; top: 1rem; right: 1rem; display: flex; gap: 0.5rem; align-items: center; z-index: 50; }
+        .language-selector-container select, .theme-toggle { padding: 0.5rem; border-radius: 6px; border: 1px solid var(--input-border); background-color: var(--bg-secondary); cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: var(--text-muted); font-size: 0.9rem; }
+        .theme-toggle { display: flex; align-items: center; } 
+        .theme-toggle span { padding: 0.3rem 0.6rem; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); border-radius: 4px; }
+        .theme-toggle span.active  { background-color: var(--accent-color); color: var(--bg-secondary); }
+        .theme-toggle svg { width: 1.25rem; height: 1.25rem; fill: var(--text-muted); }
+        .theme-toggle span.active svg { fill: var(--bg-secondary); }
+        html.light { --bg-primary: var(--bg-primary-light); --bg-secondary: var(--bg-secondary-light); --text-primary: var(--text-primary-light); --text-secondary: var(--text-secondary-light); --text-muted: var(--text-muted-light); --border: var(--border-light); --input-bg: var(--input-bg-light); --input-border: var(--input-border-light); --accent-color: var(--accent-color-light); --accent-color-darker: var(--accent-color-darker-light); --danger-color: var(--danger-color-light); --danger-color-darker: var(--danger-color-darker-light); }
+        html.dark { --bg-primary: var(--bg-primary-dark); --bg-secondary: var(--bg-secondary-dark); --text-primary: var(--text-primary-dark); --text-secondary: var(--text-secondary-dark); --text-muted: var(--text-muted-dark); --border: var(--border-dark); --input-bg: var(--input-bg-dark); --input-border: var(--input-border-dark); --accent-color: var(--accent-color-dark); --accent-color-darker: var(--accent-color-darker-dark); --danger-color: var(--danger-color-dark); --danger-color-darker: var(--danger-color-darker-dark); }
+        
+        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background-color: var(--bg-secondary); padding: 2rem; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: left; max-width: 500px; width: 90%; }
+        .modal-content h3 { color: var(--text-primary); font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; }
+        .modal-content p { color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem; line-height: 1.6; }
+        .modal-content .checkbox-label { display: flex; align-items: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;}
+        .modal-content .checkbox-label input { margin-right: 0.5rem; accent-color: var(--accent-color); }
+        .modal-buttons { display: flex; justify-content: space-between; gap: 0.75rem; margin-top: 1rem;}
+
+        .suggested-tags-container { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .suggested-tag { background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--accent-color); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.85rem; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+        .suggested-tag:hover { background-color: var(--accent-color); color: var(--bg-secondary); }
+        .loading-spinner {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+            vertical-align: text-bottom;
+            margin-left: 0.5em;
+        }
+        @keyframes spinner-border { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="top-controls">
+        <div class="language-selector-container">
+            <select id="languageSelector">
+                <option value="pt-BR">Português</option>
+                <option value="en">English</option>
+                <option value="ja">日本語</option>
+                <option value="es">Español</option>
+            </select>
+        </div>
+        <div id="themeToggle" class="theme-toggle">
+            <span id="themeLight" class="active">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+            </span>
+            <span id="themeDark">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-2.172 4.243a1 1 0 011.414 0l.707.707a1 1 0 11-1.414 1.414l-.707-.707a1 1 0 010-1.414zM4.464 4.95l.707-.707A1 1 0 003.757 2.828l-.707.707a1 1 0 001.414 1.414zM3 11a1 1 0 100-2H2a1 1 0 100 2h1z"/></svg>
+            </span>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 data-translate-key="pageTitle">Waifu Pony Diffusion</h1>
+
+        <h2 data-translate-key="generalSettingsTitle">Configurações Gerais</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="rating" data-translate-key="ratingLabel">Classificação (Rating):</label>
+                <div class="switch-field">
+                    <input type="radio" id="ratingSfw" name="rating" value="sfw" checked>
+                    <label for="ratingSfw" data-translate-key="sfwLabel">SFW</label>
+                    <input type="radio" id="ratingNsfw" name="rating" value="nsfw">
+                    <label for="ratingNsfw" data-translate-key="nsfwLabel">NSFW</label>
+                </div>
+            </div>
+            <div>
+                <label for="source" data-translate-key="sourceLabel">Fonte (Estilo Principal):</label>
+                <select id="source">
+                    <option value="source_anime" selected data-translate-key="sourceAnime">Anime</option>
+                    <option value="source_furry" data-translate-key="sourceFurry">Furry</option>
+                    <option value="source_cartoon" data-translate-key="sourceCartoon">Cartoon</option>
+                    <option value="source_pony" data-translate-key="sourcePony">Pony</option>
+                </select>
+            </div>
+            <div>
+                <label for="numChars" data-translate-key="numCharsLabel">Número de Personagens:</label>
+                <select id="numChars">
+                    <option value="1girl" selected data-translate-key="numChars1Girl">1 Garota</option>
+                    <option value="2girls" data-translate-key="numChars2Girls">2 Garotas</option>
+                    <option value="3girls" data-translate-key="numChars3Girls">3 Garotas</option>
+                </select>
+            </div>
+        </div>
+
+        <h2 data-translate-key="artisticStyleSectionTitle">Estilo Artístico</h2>
+        <div>
+            <label for="artisticStyle" data-translate-key="artisticStyleLabel">Estilo Principal:</label>
+            <select id="artisticStyle">
+                <option value="" data-translate-key="noneOption">Nenhum</option>
+                <option value="oil painting" data-translate-key="styleOilPainting">Pintura a Óleo</option>
+                <option value="watercolor" data-translate-key="styleWatercolor">Aquarela</option>
+                <option value="sketch" data-translate-key="styleSketch">Esboço</option>
+                <option value="line art" data-translate-key="styleLineArt">Arte Linha</option>
+                <option value="flat colors" data-translate-key="styleFlatColors">Cores Planas</option>
+                <option value="pixel art" data-translate-key="stylePixelArt">Pixel Art</option>
+                <option value="photorealistic" data-translate-key="stylePhotorealistic">Fotorrealista</option>
+                <option value="cel shading" data-translate-key="styleCelShading">Cel Shading</option>
+                <option value="vector art" data-translate-key="styleVectorArt">Arte Vetorial</option>
+            </select>
+        </div>
+
+
+        <h2 data-translate-key="appearanceTitle">Aparência</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div>
+                <label data-translate-key="speciesLabel">Espécie:</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="species" value="human" checked> <span data-translate-key="speciesHuman">Humana</span></label><br>
+                    <label><input type="checkbox" name="species" value="elf ears"> <span data-translate-key="speciesElf">Elfa (orelhas)</span></label><br>
+                    <label><input type="checkbox" name="species" value="cat ears, cat tail"> <span data-translate-key="speciesNeko">Neko (orelhas, cauda)</span></label><br>
+                    <label><input type="checkbox" name="species" value="fox ears, fox tail"> <span data-translate-key="speciesKitsune">Kitsune (orelhas, cauda)</span></label><br>
+                    <label><input type="checkbox" name="species" value="angel wings"> <span data-translate-key="speciesAngel">Anjo (asas)</span></label><br>
+                    <label><input type="checkbox" name="species" value="demon horns, demon wings"> <span data-translate-key="speciesDemon">Demônio (chifres, asas)</span></label>
+                </div>
+            </div>
+            <div>
+                <label for="hairColor" data-translate-key="hairColorLabel">Cor do Cabelo:</label>
+                <select id="hairColor">
+                    <option value="blonde hair" data-translate-key="hairColorBlonde">Loiro</option>
+                    <option value="brown hair" selected data-translate-key="hairColorBrown">Castanho</option>
+                    <option value="black hair" data-translate-key="hairColorBlack">Preto</option>
+                    <option value="red hair" data-translate-key="hairColorRed">Ruivo</option>
+                    <option value="pink hair" data-translate-key="hairColorPink">Rosa</option>
+                    <option value="blue hair" data-translate-key="hairColorBlue">Azul</option>
+                    <option value="green hair" data-translate-key="hairColorGreen">Verde</option>
+                    <option value="silver hair" data-translate-key="hairColorSilver">Prateado</option>
+                    <option value="white hair" data-translate-key="hairColorWhite">Branco</option>
+                    <option value="purple hair" data-translate-key="hairColorPurple">Roxo</option>
+                    <option value="multicolored hair" data-translate-key="hairColorMulticolored">Multicolorido</option>
+                </select>
+            </div>
+            <div>
+                <label for="hairStyle" data-translate-key="hairStyleLabel">Estilo do Cabelo:</label>
+                <select id="hairStyle">
+                    <option value="long hair" selected data-translate-key="hairStyleLong">Longo</option>
+                    <option value="short hair" data-translate-key="hairStyleShort">Curto</option>
+                    <option value="medium hair" data-translate-key="hairStyleMedium">Médio</option>
+                    <option value="ponytail" data-translate-key="hairStylePonytail">Rabo de Cavalo</option>
+                    <option value="twintails" data-translate-key="hairStyleTwintails">Maria Chiquinha</option>
+                    <option value="braids" data-translate-key="hairStyleBraids">Tranças</option>
+                    <option value="wavy hair" data-translate-key="hairStyleWavy">Ondulado</option>
+                    <option value="straight hair" data-translate-key="hairStyleStraight">Liso</option>
+                </select>
+            </div>
+            <div>
+                <label for="eyeColor" data-translate-key="eyeColorLabel">Cor dos Olhos:</label>
+                <select id="eyeColor">
+                    <option value="blue eyes" data-translate-key="eyeColorBlue">Azuis</option>
+                    <option value="green eyes" data-translate-key="eyeColorGreen">Verdes</option>
+                    <option value="brown eyes" selected data-translate-key="eyeColorBrown">Castanhos</option>
+                    <option value="red eyes" data-translate-key="eyeColorRed">Vermelhos</option>
+                    <option value="purple eyes" data-translate-key="eyeColorPurple">Roxos</option>
+                    <option value="yellow eyes" data-translate-key="eyeColorYellow">Amarelos</option>
+                    <option value="black eyes" data-translate-key="eyeColorBlack">Pretos</option>
+                    <option value="heterochromia" data-translate-key="eyeColorHeterochromia">Heterocromia</option>
+                </select>
+            </div>
+            <div>
+                <label for="skinTone" data-translate-key="skinToneLabel">Tom de Pele:</label>
+                <select id="skinTone">
+                    <option value="" data-translate-key="noneOption">Nenhum</option>
+                    <option value="pale skin" data-translate-key="skinPale">Pele Pálida</option>
+                    <option value="light skin" data-translate-key="skinLight">Pele Clara</option>
+                    <option value="fair skin" data-translate-key="skinFair">Pele Branca</option>
+                    <option value="olive skin" data-translate-key="skinOlive">Pele Oliva</option>
+                    <option value="brown skin" data-translate-key="skinBrown">Pele Morena</option>
+                    <option value="dark skin" data-translate-key="skinDark">Pele Escura</option>
+                </select>
+                <label class="mt-2"><input type="checkbox" id="tannedSkinCheckbox"> <span data-translate-key="skinTanned">Pele Bronzeada</span></label>
+            </div>
+        </div>
+
+        <h2 data-translate-key="bodyTitle">Corpo</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label for="age" data-translate-key="ageLabel">Idade:</label>
+                <select id="age">
+                    <option value="young adult" selected data-translate-key="ageYoungAdult">Jovem Adulta</option>
+                    <option value="adult" data-translate-key="ageAdult">Adulta</option>
+                    <option value="mature" data-translate-key="ageMature">Madura</option>
+                    <option value="milf" data-translate-key="ageMilf">MILF</option>
+                </select>
+            </div>
+            <div>
+                <label for="build" data-translate-key="buildLabel">Constituição:</label>
+                <select id="build">
+                    <option value="slim" data-translate-key="buildSlim">Magra</option>
+                    <option value="average body" selected data-translate-key="buildAverage">Média</option>
+                    <option value="athletic" data-translate-key="buildAthletic">Atlética</option>
+                    <option value="curvy" data-translate-key="buildCurvy">Curvilínea</option>
+                    <option value="chubby" data-translate-key="buildChubby">Gordinha</option>
+                </select>
+            </div>
+            <div>
+                <label for="bustSize" data-translate-key="bustSizeLabel">Tamanho do Busto:</label> <span id="bustSizeValue">Médio</span>
+                <input type="range" id="bustSize" min="1" max="5" value="3">
+            </div>
+        </div>
+
+        <h2 data-translate-key="clothingAccessoriesTitle">Roupas e Acessórios</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="outfit" data-translate-key="outfitTypeLabel">Tipo de Roupa:</label>
+                <select id="outfit">
+                    <option value="school uniform" data-translate-key="outfitSchoolUniform">Uniforme Escolar</option>
+                    <option value="maid outfit" data-translate-key="outfitMaid">Roupa de Empregada</option>
+                    <option value="nurse outfit" data-translate-key="outfitNurse">Enfermeira</option>
+                    <option value="police uniform" data-translate-key="outfitPolice">Policial</option>
+                    <option value="firefighter uniform" data-translate-key="outfitFirefighter">Bombeira</option>
+                    <option value="gardening clothes" data-translate-key="outfitGardener">Jardineira</option>
+                    <option value="swimsuit" data-translate-key="outfitSwimsuit">Maiô</option>
+                    <option value="bikini" data-translate-key="outfitBikini">Biquíni</option>
+                    <option value="casual clothes" selected data-translate-key="outfitCasual">Roupas Casuais</option>
+                    <option value="fantasy armor" data-translate-key="outfitFantasyArmor">Armadura de Fantasia</option>
+                    <option value="dress" data-translate-key="outfitDress">Vestido</option>
+                    <option value="lingerie" data-translate-key="outfitLingerie">Lingerie</option>
+                    <option value="kimono" data-translate-key="outfitKimono">Kimono</option>
+                    <option value="no clothes" data-translate-key="outfitNoClothes">Sem Roupas (NSFW)</option>
+                </select>
+            </div>
+            <div>
+                <label data-translate-key="accessoriesLabel">Acessórios:</label>
+                <div class="checkbox-group grid grid-cols-fill gap-x-4">
+                    <label><input type="checkbox" name="accessories" value="glasses"> <span data-translate-key="accessoryGlasses">Óculos</span></label>
+                    <label><input type="checkbox" name="accessories" value="hat"> <span data-translate-key="accessoryHat">Chapéu</span></label>
+                    <label><input type="checkbox" name="accessories" value="ribbon"> <span data-translate-key="accessoryRibbon">Fita</span></label>
+                    <label><input type="checkbox" name="accessories" value="choker"> <span data-translate-key="accessoryChoker">Gargantilha</span></label>
+                    <label><input type="checkbox" name="accessories" value="thighhighs"> <span data-translate-key="accessoryThighhighs">Meias 7/8</span></label>
+                    <label><input type="checkbox" name="accessories" value="necklace"> <span data-translate-key="accessoryNecklace">Colar</span></label>
+                    <label><input type="checkbox" name="accessories" value="earrings"> <span data-translate-key="accessoryEarrings">Brincos</span></label>
+                    <label><input type="checkbox" name="accessories" value="gloves"> <span data-translate-key="accessoryGloves">Luvas</span></label>
+                </div>
+            </div>
+        </div>
+
+        <h2 data-translate-key="dailyActionsTitle">Ações do Dia a Dia</h2>
+        <div>
+            <label for="dailyAction" data-translate-key="dailyActionLabel">Ação:</label>
+            <select id="dailyAction">
+                <option value="" data-translate-key="noneOption">Nenhuma</option>
+                <option value="practicing sports" data-translate-key="actionSports">Praticando Esportes</option>
+                <option value="working" data-translate-key="actionWorking">Trabalhando</option>
+                <option value="sweeping" data-translate-key="actionSweeping">Varrendo</option>
+                <option value="cooking" data-translate-key="actionCooking">Cozinhando</option>
+                <option value="reading a book" data-translate-key="actionReading">Lendo</option>
+                <option value="sleeping" data-translate-key="actionSleeping">Dormindo</option>
+                <option value="watching tv" data-translate-key="actionWatchingTV">Vendo TV</option>
+                <option value="looking out window" data-translate-key="actionWindowGazing">Contemplando a Janela</option>
+                <option value="bathing" data-translate-key="actionBathing">Tomando Banho</option>
+                <option value="showering" data-translate-key="actionShowering">Tomando Ducha</option>
+            </select>
+        </div>
+        
+        <div id="nsfwSpecificControls" class="hidden">
+            <h2 data-translate-key="nsfwSpecificTitle">Configurações NSFW Específicas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div>
+                    <label for="sensualPose" data-translate-key="sensualPoseLabel">Poses Sensuais:</label>
+                    <select id="sensualPose">
+                        <option value="" data-translate-key="noneOption">Nenhuma</option>
+                        <option value="seductive pose">Seductive Pose</option>
+                        <option value="provocative pose">Provocative Pose</option>
+                        <option value="bent over">Bent Over</option>
+                        <option value="spread legs">Spread Legs</option>
+                        <option value="on back, legs open">On Back, Legs Open</option>
+                        <option value="presenting">Presenting</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sexualActions" data-translate-key="sexualActionsLabel">Ações Sexuais:</label>
+                    <select id="sexualActions">
+                        <option value="" data-translate-key="noneOption">Nenhuma</option>
+                        <option value="masturbation">Masturbation</option>
+                        <option value="female masturbation">Female Masturbation</option>
+                        <option value="fingering">Fingering</option>
+                        <option value="sex">Sex</option>
+                        <option value="vaginal sex">Vaginal Sex</option>
+                        <option value="anal sex">Anal Sex</option>
+                        <option value="oral sex">Oral Sex</option>
+                        <option value="group sex">Group Sex</option>
+                    </select>
+                </div>
+                 <div>
+                    <label for="sexualObjects" data-translate-key="sexualObjectsLabel">Objetos Sexuais:</label>
+                    <select id="sexualObjects">
+                        <option value="" data-translate-key="noneOption">Nenhum</option>
+                        <option value="dildo">Dildo</option>
+                        <option value="vibrator">Vibrator</option>
+                        <option value="sex toy">Sex Toy</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="genderEquipment" data-translate-key="genderEquipmentLabel">Gênero/Equipamento:</label>
+                    <select id="genderEquipment">
+                        <option value="" data-translate-key="noneOption">Nenhum</option>
+                        <option value="futanari">Futanari</option>
+                        <option value="strap-on">Strap-on</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="nippleType" data-translate-key="nippleTypeLabel">Tipo de Mamilo:</label>
+                    <select id="nippleType">
+                        <option value="" data-translate-key="noneOption">Nenhum</option>
+                        <option value="puffy nipples">Puffy Nipples</option>
+                        <option value="erect nipples">Erect Nipples</option>
+                        <option value="inverted nipples">Inverted Nipples</option>
+                        <option value="pointy nipples">Pointy Nipples</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="nippleColor" data-translate-key="nippleColorLabel">Cor dos Mamilos:</label>
+                    <select id="nippleColor">
+                        <option value="" data-translate-key="noneOption">Nenhuma</option>
+                        <option value="pink nipples">Pink Nipples</option>
+                        <option value="light brown nipples">Light Brown Nipples</option>
+                        <option value="brown nipples">Brown Nipples</option>
+                        <option value="dark nipples">Dark Nipples</option>
+                    </select>
+                </div>
+                <div class="checkbox-group">
+                     <label><input type="checkbox" id="nippleSlipCheckbox"> <span data-translate-key="nippleSlipLabel">Nipple Slip</span></label>
+                     <label><input type="checkbox" id="sideboobCheckbox"> <span data-translate-key="sideboobLabel">Sideboob</span></label>
+                </div>
+                <div>
+                    <label for="pubicHairStyle" data-translate-key="pubicHairStyleLabel">Pelos Pubianos:</label>
+                    <select id="pubicHairStyle">
+                        <option value="" data-translate-key="noneOption">Nenhum/Não Visível</option>
+                        <option value="pubic hair">Pubic Hair (Visible)</option>
+                        <option value="shaved pubic hair">Shaved</option>
+                        <option value="trimmed pubic hair">Trimmed</option>
+                        <option value="bushy pubic hair">Bushy</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="labiaType" data-translate-key="labiaTypeLabel">Tipo de Lábios Vaginais:</label>
+                    <select id="labiaType">
+                        <option value="" data-translate-key="noneOption">Nenhum</option>
+                        <option value="puffy labia">Puffy Labia</option>
+                        <option value="innie labia">Innie Labia</option>
+                        <option value="outie labia">Outie Labia</option>
+                        <option value="long labia">Long Labia</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="labiaColor" data-translate-key="labiaColorLabel">Cor dos Lábios Vaginais:</label>
+                    <select id="labiaColor">
+                        <option value="" data-translate-key="noneOption">Nenhuma</option>
+                        <option value="pink labia">Pink Labia</option>
+                        <option value="light brown labia">Light Brown Labia</option>
+                        <option value="dark labia">Dark Labia</option>
+                    </select>
+                </div>
+                 <div>
+                    <label for="fluids" data-translate-key="fluidsLabel">Fluidos:</label>
+                    <select id="fluids">
+                        <option value="" data-translate-key="noneOption">Nenhum</option>
+                        <option value="cum">Cum</option>
+                        <option value="semen">Semen</option>
+                        <option value="female ejaculation">Female Ejaculation</option>
+                        <option value="precum">Precum</option>
+                        <option value="on body">On Body</option>
+                        <option value="on face">On Face</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <h2 data-translate-key="poseExpressionTitle">Pose e Expressão</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="pose" data-translate-key="poseLabel">Pose:</label>
+                <select id="pose">
+                    <option value="standing" selected data-translate-key="poseStanding">De Pé</option>
+                    <option value="sitting" data-translate-key="poseSitting">Sentada</option>
+                    <option value="lying" data-translate-key="poseLying">Deitada</option>
+                    <option value="looking at viewer" data-translate-key="poseLookingAtViewer">Olhando para o Espectador</option>
+                    <option value="full body" data-translate-key="poseFullBody">Corpo Inteiro</option>
+                    <option value="upper body" data-translate-key="poseUpperBody">Parte Superior do Corpo</option>
+                    <option value="portrait" data-translate-key="posePortrait">Retrato</option>
+                    <option value="from behind" data-translate-key="poseFromBehind">De Costas</option>
+                    <option value="cowboy shot" data-translate-key="poseCowboyShot">Plano Americano</option>
+                </select>
+            </div>
+            <div>
+                <label for="expression" data-translate-key="expressionLabel">Expressão:</label>
+                <select id="expression">
+                    <option value="smiling" selected data-translate-key="expressionSmiling">Sorrindo</option>
+                    <option value="laughing" data-translate-key="expressionLaughing">Rindo</option>
+                    <option value="sad" data-translate-key="expressionSad">Triste</option>
+                    <option value="angry" data-translate-key="expressionAngry">Brava</option>
+                    <option value="shy" data-translate-key="expressionShy">Tímida</option>
+                    <option value="blushing" data-translate-key="expressionBlushing">Corada</option>
+                    <option value="winking" data-translate-key="expressionWinking">Piscando</option>
+                    <option value="neutral expression" data-translate-key="expressionNeutral">Neutra</option>
+                    <option value="surprised" data-translate-key="expressionSurprised">Surpresa</option>
+                    <option value="smug" data-translate-key="expressionSmug">Convencida</option>
+                    <option value="ahegao" data-translate-key="expressionAhegao">Ahegao (NSFW)</option>
+                </select>
+            </div>
+        </div>
+
+        <h2 data-translate-key="scenarioTitle">Cenário</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="location" data-translate-key="locationLabel">Localização:</label>
+                <select id="location">
+                    <option value="indoors" data-translate-key="locationIndoors">Interior</option>
+                    <option value="outdoors" selected data-translate-key="locationOutdoors">Exterior</option>
+                    <option value="beach" data-translate-key="locationBeach">Praia</option>
+                    <option value="forest" data-translate-key="locationForest">Floresta</option>
+                    <option value="cityscape" data-translate-key="locationCityscape">Paisagem Urbana</option>
+                    <option value="bedroom" data-translate-key="locationBedroom">Quarto</option>
+                    <option value="classroom" data-translate-key="locationClassroom">Sala de Aula</option>
+                    <option value="fantasy world" data-translate-key="locationFantasyWorld">Mundo de Fantasia</option>
+                    <option value="simple background" data-translate-key="locationSimpleBg">Fundo Simples</option>
+                    <option value="white background" data-translate-key="locationWhiteBg">Fundo Branco</option>
+                </select>
+            </div>
+            <div>
+                <label for="lighting" data-translate-key="lightingLabel">Iluminação:</label>
+                <select id="lighting">
+                    <option value="day" selected data-translate-key="lightingDay">Dia</option>
+                    <option value="night" data-translate-key="lightingNight">Noite</option>
+                    <option value="sunset" data-translate-key="lightingSunset">Pôr do Sol</option>
+                    <option value="moody lighting" data-translate-key="lightingMoody">Iluminação Ambiente</option>
+                    <option value="cinematic lighting" data-translate-key="lightingCinematic">Iluminação Cinematográfica</option>
+                    <option value="studio lighting" data-translate-key="lightingStudio">Iluminação de Estúdio</option>
+                    <option value="soft lighting" data-translate-key="lightingSoft">Iluminação Suave</option>
+                </select>
+            </div>
+        </div>
+        
+        <h2 data-translate-key="artQualityTitle">Qualidade Artística Adicional (Positivo)</h2>
+        <div class="checkbox-group grid grid-cols-fill gap-x-4">
+            <label><input type="checkbox" name="artQuality" value="masterpiece" checked> <span data-translate-key="artQualityMasterpiece">Masterpiece</span></label>
+            <label><input type="checkbox" name="artQuality" value="best quality" checked> <span data-translate-key="artQualityBest">Best Quality</span></label>
+            <label><input type="checkbox" name="artQuality" value="high quality"> <span data-translate-key="artQualityHigh">High Quality</span></label>
+            <label><input type="checkbox" name="artQuality" value="ultra-detailed"> <span data-translate-key="artQualityUltraDetailed">Ultra-Detailed</span></label>
+            <label><input type="checkbox" name="artQuality" value="detailed"> <span data-translate-key="artQualityDetailed">Detailed</span></label>
+            <label><input type="checkbox" name="artQuality" value="illustration"> <span data-translate-key="artQualityIllustration">Illustration</span></label>
+            <label><input type="checkbox" name="artQuality" value="concept art"> <span data-translate-key="artQualityConceptArt">Concept Art</span></label>
+            <label><input type="checkbox" name="artQuality" value="sharp focus"> <span data-translate-key="artQualitySharpFocus">Sharp Focus</span></label>
+        </div>
+
+        <h2 data-translate-key="geminiAiSectionTitle">✨ Assistência IA (Gemini)</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+            <div>
+                <button id="enhancePromptButton" class="w-full">
+                    <span data-translate-key="enhancePromptButtonText">✨ Melhorar Prompt Positivo com IA</span>
+                    <span id="enhancePromptLoading" class="loading-spinner hidden"></span>
+                </button>
+                <div id="suggestedTagsContainer" class="suggested-tags-container mt-2"></div>
+                <p id="geminiErrorEnhance" class="text-sm text-red-500 mt-1 hidden"></p>
+            </div>
+            <div>
+                <button id="generateCharacterIdeaButton" class="w-full">
+                    <span data-translate-key="generateCharacterIdeaButtonText">✨ Gerar Ideia de Personagem com IA</span>
+                    <span id="generateIdeaLoading" class="loading-spinner hidden"></span>
+                </button>
+                <div id="characterIdeaOutput" class="mt-2 p-3 border border-[var(--input-border)] rounded-md bg-[var(--input-bg)] min-h-[60px] text-sm whitespace-pre-wrap"></div>
+                <p id="geminiErrorIdea" class="text-sm text-red-500 mt-1 hidden"></p>
+            </div>
+        </div>
+
+
+        <h2 data-translate-key="generatedPromptsTitle">Prompts Gerados</h2>
+        <div>
+            <label for="positivePrompt" data-translate-key="positivePromptLabel">Prompt Positivo:</label>
+            <textarea id="positivePrompt" readonly></textarea>
+            <button onclick="copyPrompt(event, 'positivePrompt')" data-translate-key="copyPositiveButton">Copiar Positivo</button>
+        </div>
+        <div class="mt-4">
+            <label for="negativePrompt" data-translate-key="negativePromptLabel">Prompt Negativo:</label>
+            <textarea id="negativePrompt" readonly></textarea>
+            <button onclick="copyPrompt(event, 'negativePrompt')" data-translate-key="copyNegativeButton">Copiar Negativo</button>
+        </div>
+        <div class="mt-6 text-center">
+            <button id="resetButton" class="secondary" data-translate-key="resetButton">Resetar para Padrões</button>
+        </div>
+    </div>
+
+    <div id="nsfwWarningModal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <h3 data-translate-key="nsfwWarningTitle">Aviso de Conteúdo Adulto</h3>
+            <p data-translate-key="nsfwWarningText">Ao ativar o modo NSFW, você poderá gerar conteúdo destinado a maiores de 18 anos. Prossiga apenas se tiver idade legal e estiver ciente disso.</p>
+            <label class="checkbox-label">
+                <input type="checkbox" id="hideNsfwWarningCheckbox">
+                <span data-translate-key="nsfwWarningDontShowAgain">Não mostrar este aviso novamente</span>
+            </label>
+            <div class="modal-buttons">
+                <button id="nsfwWarningDeclineButton" class="danger" data-translate-key="nsfwWarningDecline">Recusar e Voltar</button>
+                <button id="nsfwWarningProceedButton" data-translate-key="nsfwWarningProceed">Entendi e Desejo Prosseguir</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Objeto de traduções
+        // ** ATENÇÃO: As traduções para Japonês (ja) e Espanhol (es) são automáticas e PRECISAM de revisão por um falante fluente. **
+        const translations = {
+            'pt-BR': {
+                'pageTitle': 'Waifu Pony Diffusion', 'generalSettingsTitle': 'Configurações Gerais', 'ratingLabel': 'Classificação (Rating):', 'sfwLabel': 'SFW', 'nsfwLabel': 'NSFW', 'sourceLabel': 'Fonte (Estilo Principal):', 'sourceAnime': 'Anime', 'sourceFurry': 'Furry', 'sourceCartoon': 'Cartoon', 'sourcePony': 'Pony', 'numCharsLabel': 'Número de Personagens:', 'numChars1Girl': '1 Garota', 'numChars2Girls': '2 Garotas', 'numChars3Girls': '3 Garotas',
+                'artisticStyleSectionTitle': 'Estilo Artístico', 'artisticStyleLabel': 'Estilo Principal:', 'styleOilPainting': 'Pintura a Óleo', 'styleWatercolor': 'Aquarela', 'styleSketch': 'Esboço', 'styleLineArt': 'Arte Linha', 'styleFlatColors': 'Cores Planas', 'stylePixelArt': 'Pixel Art', 'stylePhotorealistic': 'Fotorrealista', 'styleCelShading': 'Cel Shading', 'styleVectorArt': 'Arte Vetorial',
+                'appearanceTitle': 'Aparência', 'speciesLabel': 'Espécie:', 'speciesHuman': 'Humana', 'speciesElf': 'Elfa (orelhas)', 'speciesNeko': 'Neko (orelhas, cauda)', 'speciesKitsune': 'Kitsune (orelhas, cauda)', 'speciesAngel': 'Anjo (asas)', 'speciesDemon': 'Demônio (chifres, asas)', 'hairColorLabel': 'Cor do Cabelo:', 'hairColorBlonde': 'Loiro', 'hairColorBrown': 'Castanho', 'hairColorBlack': 'Preto', 'hairColorRed': 'Ruivo', 'hairColorPink': 'Rosa', 'hairColorBlue': 'Azul', 'hairColorGreen': 'Verde', 'hairColorSilver': 'Prateado', 'hairColorWhite': 'Branco', 'hairColorPurple': 'Roxo', 'hairColorMulticolored': 'Multicolorido', 'hairStyleLabel': 'Estilo do Cabelo:', 'hairStyleLong': 'Longo', 'hairStyleShort': 'Curto', 'hairStyleMedium': 'Médio', 'hairStylePonytail': 'Rabo de Cavalo', 'hairStyleTwintails': 'Maria Chiquinha', 'hairStyleBraids': 'Tranças', 'hairStyleWavy': 'Ondulado', 'hairStyleStraight': 'Liso', 'eyeColorLabel': 'Cor dos Olhos:', 'eyeColorBlue': 'Azuis', 'eyeColorGreen': 'Verdes', 'eyeColorBrown': 'Castanhos', 'eyeColorRed': 'Vermelhos', 'eyeColorPurple': 'Roxos', 'eyeColorYellow': 'Amarelos', 'eyeColorBlack': 'Pretos', 'eyeColorHeterochromia': 'Heterocromia',
+                'skinToneLabel': 'Tom de Pele:', 'skinPale': 'Pele Pálida', 'skinLight': 'Pele Clara', 'skinFair': 'Pele Branca', 'skinOlive': 'Pele Oliva', 'skinBrown': 'Pele Morena', 'skinDark': 'Pele Escura', 'skinTanned': 'Pele Bronzeada',
+                'bodyTitle': 'Corpo', 'ageLabel': 'Idade:', 'ageYoungAdult': 'Jovem Adulta', 'ageAdult': 'Adulta', 'ageMature': 'Madura', 'ageMilf': 'MILF',
+                'buildLabel': 'Constituição:', 'buildSlim': 'Magra', 'buildAverage': 'Média', 'buildAthletic': 'Atlética', 'buildCurvy': 'Curvilínea', 'buildChubby': 'Gordinha', 'bustSizeLabel': 'Tamanho do Busto:', 'bustSizeDisplayVerySmall': 'Muito Pequeno', 'bustSizeDisplaySmall': 'Pequeno', 'bustSizeDisplayMedium': 'Médio', 'bustSizeDisplayLarge': 'Grande', 'bustSizeDisplayVeryLarge': 'Muito Grande', 'clothingAccessoriesTitle': 'Roupas e Acessórios', 'outfitTypeLabel': 'Tipo de Roupa:', 'outfitSchoolUniform': 'Uniforme Escolar', 'outfitMaid': 'Roupa de Empregada', 'outfitNurse': 'Enfermeira', 'outfitPolice': 'Policial', 'outfitFirefighter': 'Bombeira', 'outfitGardener': 'Jardineira', 'outfitSwimsuit': 'Maiô', 'outfitBikini': 'Biquíni', 'outfitCasual': 'Roupas Casuais', 'outfitFantasyArmor': 'Armadura de Fantasia', 'outfitDress': 'Vestido', 'outfitLingerie': 'Lingerie', 'outfitKimono': 'Kimono', 'outfitNoClothes': 'Sem Roupas (NSFW)', 'accessoriesLabel': 'Acessórios:', 'accessoryGlasses': 'Óculos', 'accessoryHat': 'Chapéu', 'accessoryRibbon': 'Fita', 'accessoryChoker': 'Gargantilha', 'accessoryThighhighs': 'Meias 7/8', 'accessoryNecklace': 'Colar', 'accessoryEarrings': 'Brincos', 'accessoryGloves': 'Luvas',
+                'dailyActionsTitle': 'Ações do Dia a Dia', 'dailyActionLabel': 'Ação:', 'actionSports': 'Praticando Esportes', 'actionWorking': 'Trabalhando', 'actionSweeping': 'Varrendo', 'actionCooking': 'Cozinhando', 'actionReading': 'Lendo', 'actionSleeping': 'Dormindo', 'actionWatchingTV': 'Vendo TV', 'actionWindowGazing': 'Contemplando a Janela', 'actionBathing': 'Tomando Banho', 'actionShowering': 'Tomando Ducha',
+                'nsfwSpecificTitle': 'Configurações NSFW Específicas', 'sensualPoseLabel': 'Poses Sensuais:', 'sexualActionsLabel': 'Ações Sexuais:', 'sexualObjectsLabel': 'Objetos Sexuais:', 'genderEquipmentLabel': 'Gênero/Equipamento:',
+                'nippleTypeLabel': 'Tipo de Mamilo:', 'nippleColorLabel': 'Cor dos Mamilos:', 'nippleSlipLabel': 'Nipple Slip', 'sideboobLabel': 'Sideboob',
+                'pubicHairStyleLabel': 'Pelos Pubianos:', 'labiaTypeLabel': 'Tipo de Lábios Vaginais:', 'labiaColorLabel': 'Cor dos Lábios Vaginais:', 'fluidsLabel': 'Fluidos:', 'noneOption': 'Nenhuma',
+                'poseExpressionTitle': 'Pose e Expressão', 'poseLabel': 'Pose:', 'poseStanding': 'De Pé', 'poseSitting': 'Sentada', 'poseLying': 'Deitada', 'poseLookingAtViewer': 'Olhando para o Espectador', 'poseFullBody': 'Corpo Inteiro', 'poseUpperBody': 'Parte Superior do Corpo', 'posePortrait': 'Retrato', 'poseFromBehind': 'De Costas', 'poseCowboyShot': 'Plano Americano', 'expressionLabel': 'Expressão:', 'expressionSmiling': 'Sorrindo', 'expressionLaughing': 'Rindo', 'expressionSad': 'Triste', 'expressionAngry': 'Brava', 'expressionShy': 'Tímida', 'expressionBlushing': 'Corada', 'expressionWinking': 'Piscando', 'expressionNeutral': 'Neutra', 'expressionSurprised': 'Surpresa', 'expressionSmug': 'Convencida', 'expressionAhegao': 'Ahegao (NSFW)', 'scenarioTitle': 'Cenário', 'locationLabel': 'Localização:', 'locationIndoors': 'Interior', 'locationOutdoors': 'Exterior', 'locationBeach': 'Praia', 'locationForest': 'Floresta', 'locationCityscape': 'Paisagem Urbana', 'locationBedroom': 'Quarto', 'locationClassroom': 'Sala de Aula', 'locationFantasyWorld': 'Mundo de Fantasia', 'locationSimpleBg': 'Fundo Simples', 'locationWhiteBg': 'Fundo Branco', 'lightingLabel': 'Iluminação:', 'lightingDay': 'Dia', 'lightingNight': 'Noite', 'lightingSunset': 'Pôr do Sol', 'lightingMoody': 'Iluminação Ambiente', 'lightingCinematic': 'Iluminação Cinematográfica', 'lightingStudio': 'Iluminação de Estúdio', 'lightingSoft': 'Iluminação Suave', 'artQualityTitle': 'Qualidade Artística Adicional (Positivo)', 'artQualityMasterpiece': 'Masterpiece', 'artQualityBest': 'Best Quality', 'artQualityHigh': 'High Quality', 'artQualityUltraDetailed': 'Ultra-Detailed', 'artQualityDetailed': 'Detailed', 'artQualityIllustration': 'Illustration', 'artQualityConceptArt': 'Concept Art', 'artQualitySharpFocus': 'Sharp Focus', 'generatedPromptsTitle': 'Prompts Gerados', 'positivePromptLabel': 'Prompt Positivo:', 'copyPositiveButton': 'Copiar Positivo', 'negativePromptLabel': 'Prompt Negativo:', 'copyNegativeButton': 'Copiar Negativo', 'resetButton': 'Resetar para Padrões', 'copiedFeedback': 'Copiado!',
+                'nsfwWarningTitle': 'Aviso de Conteúdo Adulto', 'nsfwWarningText': 'Ao ativar o modo NSFW, você poderá gerar conteúdo destinado a maiores de 18 anos. Prossiga apenas se tiver idade legal e estiver ciente disso.', 'nsfwWarningDontShowAgain': 'Não mostrar este aviso novamente', 'nsfwWarningProceed': 'Entendi e Desejo Prosseguir', 'nsfwWarningDecline': 'Recusar e Voltar',
+                'geminiAiSectionTitle': '✨ Assistência IA (Gemini)', 'enhancePromptButtonText': '✨ Melhorar Prompt Positivo com IA', 'generateCharacterIdeaButtonText': '✨ Gerar Ideia de Personagem com IA', 'geminiApiError': 'Erro ao contatar a IA. Tente novamente.', 'geminiNoSuggestions': 'IA não retornou sugestões.', 'geminiNoIdea': 'IA não retornou uma ideia.'
+            },
+            'en': {
+                'pageTitle': 'Waifu Pony Diffusion', 'generalSettingsTitle': 'General Settings', 'ratingLabel': 'Rating:', 'sfwLabel': 'SFW', 'nsfwLabel': 'NSFW', 'sourceLabel': 'Source (Main Style):', 'sourceAnime': 'Anime', 'sourceFurry': 'Furry', 'sourceCartoon': 'Cartoon', 'sourcePony': 'Pony', 'numCharsLabel': 'Number of Characters:', 'numChars1Girl': '1 Girl', 'numChars2Girls': '2 Girls', 'numChars3Girls': '3 Girls',
+                'artisticStyleSectionTitle': 'Artistic Style', 'artisticStyleLabel': 'Main Style:', 'styleOilPainting': 'Oil Painting', 'styleWatercolor': 'Watercolor', 'styleSketch': 'Sketch', 'styleLineArt': 'Line Art', 'styleFlatColors': 'Flat Colors', 'stylePixelArt': 'Pixel Art', 'stylePhotorealistic': 'Photorealistic', 'styleCelShading': 'Cel Shading', 'styleVectorArt': 'Vector Art',
+                'appearanceTitle': 'Appearance', 'speciesLabel': 'Species:', 'speciesHuman': 'Human', 'speciesElf': 'Elf (ears)', 'speciesNeko': 'Neko (ears, tail)', 'speciesKitsune': 'Kitsune (ears, tail)', 'speciesAngel': 'Angel (wings)', 'speciesDemon': 'Demon (horns, wings)', 'hairColorLabel': 'Hair Color:', 'hairColorBlonde': 'Blonde', 'hairColorBrown': 'Brown', 'hairColorBlack': 'Black', 'hairColorRed': 'Red', 'hairColorPink': 'Pink', 'hairColorBlue': 'Blue', 'hairColorGreen': 'Green', 'hairColorSilver': 'Silver', 'hairColorWhite': 'White', 'hairColorPurple': 'Purple', 'hairColorMulticolored': 'Multicolored', 'hairStyleLabel': 'Hair Style:', 'hairStyleLong': 'Long', 'hairStyleShort': 'Short', 'hairStyleMedium': 'Medium', 'hairStylePonytail': 'Ponytail', 'hairStyleTwintails': 'Twintails', 'hairStyleBraids': 'Braids', 'hairStyleWavy': 'Wavy', 'hairStyleStraight': 'Straight', 'eyeColorLabel': 'Eye Color:', 'eyeColorBlue': 'Blue', 'eyeColorGreen': 'Green', 'eyeColorBrown': 'Brown', 'eyeColorRed': 'Red', 'eyeColorPurple': 'Purple', 'eyeColorYellow': 'Yellow', 'eyeColorBlack': 'Black', 'eyeColorHeterochromia': 'Heterochromia',
+                'skinToneLabel': 'Skin Tone:', 'skinPale': 'Pale Skin', 'skinLight': 'Light Skin', 'skinFair': 'Fair Skin', 'skinOlive': 'Olive Skin', 'skinBrown': 'Brown Skin', 'skinDark': 'Dark Skin', 'skinTanned': 'Tanned Skin',
+                'bodyTitle': 'Body', 'ageLabel': 'Age:', 'ageYoungAdult': 'Young Adult', 'ageAdult': 'Adult', 'ageMature': 'Mature', 'ageMilf': 'MILF',
+                'buildLabel': 'Build:', 'buildSlim': 'Slim', 'buildAverage': 'Average', 'buildAthletic': 'Athletic', 'buildCurvy': 'Curvy', 'buildChubby': 'Chubby', 'bustSizeLabel': 'Bust Size:', 'bustSizeDisplayVerySmall': 'Very Small', 'bustSizeDisplaySmall': 'Small', 'bustSizeDisplayMedium': 'Medium', 'bustSizeDisplayLarge': 'Large', 'bustSizeDisplayVeryLarge': 'Very Large', 'clothingAccessoriesTitle': 'Clothing & Accessories', 'outfitTypeLabel': 'Outfit Type:', 'outfitSchoolUniform': 'School Uniform', 'outfitMaid': 'Maid Outfit', 'outfitNurse': 'Nurse Outfit', 'outfitPolice': 'Police Uniform', 'outfitFirefighter': 'Firefighter Uniform', 'outfitGardener': 'Gardener Outfit', 'outfitSwimsuit': 'Swimsuit', 'outfitBikini': 'Bikini', 'outfitCasual': 'Casual Clothes', 'outfitFantasyArmor': 'Fantasy Armor', 'outfitDress': 'Dress', 'outfitLingerie': 'Lingerie', 'outfitKimono': 'Kimono', 'outfitNoClothes': 'No Clothes (NSFW)', 'accessoriesLabel': 'Accessories:', 'accessoryGlasses': 'Glasses', 'accessoryHat': 'Hat', 'accessoryRibbon': 'Ribbon', 'accessoryChoker': 'Choker', 'accessoryThighhighs': 'Thighhighs', 'accessoryNecklace': 'Necklace', 'accessoryEarrings': 'Earrings', 'accessoryGloves': 'Gloves',
+                'dailyActionsTitle': 'Daily Actions', 'dailyActionLabel': 'Action:', 'actionSports': 'Practicing Sports', 'actionWorking': 'Working', 'actionSweeping': 'Sweeping', 'actionCooking': 'Cooking', 'actionReading': 'Reading', 'actionSleeping': 'Sleeping', 'actionWatchingTV': 'Watching TV', 'actionWindowGazing': 'Window Gazing', 'actionBathing': 'Bathing', 'actionShowering': 'Showering',
+                'nsfwSpecificTitle': 'Specific NSFW Settings', 'sensualPoseLabel': 'Sensual Poses:', 'sexualActionsLabel': 'Sexual Actions:', 'sexualObjectsLabel': 'Sexual Objects:', 'genderEquipmentLabel': 'Gender/Equipment:',
+                'nippleTypeLabel': 'Nipple Type:', 'nippleColorLabel': 'Nipple Color:', 'nippleSlipLabel': 'Nipple Slip', 'sideboobLabel': 'Sideboob',
+                'pubicHairStyleLabel': 'Pubic Hair:', 'labiaTypeLabel': 'Labia Type:', 'labiaColorLabel': 'Labia Color:', 'fluidsLabel': 'Fluids:', 'noneOption': 'None',
+                'poseExpressionTitle': 'Pose & Expression', 'poseLabel': 'Pose:', 'poseStanding': 'Standing', 'poseSitting': 'Sitting', 'poseLying': 'Lying', 'poseLookingAtViewer': 'Looking at Viewer', 'poseFullBody': 'Full Body', 'poseUpperBody': 'Upper Body', 'posePortrait': 'Portrait', 'poseFromBehind': 'From Behind', 'poseCowboyShot': 'Cowboy Shot', 'expressionLabel': 'Expression:', 'expressionSmiling': 'Smiling', 'expressionLaughing': 'Laughing', 'expressionSad': 'Sad', 'expressionAngry': 'Angry', 'expressionShy': 'Shy', 'expressionBlushing': 'Blushing', 'expressionWinking': 'Winking', 'expressionNeutral': 'Neutral', 'expressionSurprised': 'Surprised', 'expressionSmug': 'Smug', 'expressionAhegao': 'Ahegao (NSFW)', 'scenarioTitle': 'Scenario', 'locationLabel': 'Location:', 'locationIndoors': 'Indoors', 'locationOutdoors': 'Outdoors', 'locationBeach': 'Beach', 'locationForest': 'Forest', 'locationCityscape': 'Cityscape', 'locationBedroom': 'Bedroom', 'locationClassroom': 'Classroom', 'locationFantasyWorld': 'Fantasy World', 'locationSimpleBg': 'Simple Background', 'locationWhiteBg': 'White Background', 'lightingLabel': 'Lighting:', 'lightingDay': 'Day', 'lightingNight': 'Night', 'lightingSunset': 'Sunset', 'lightingMoody': 'Moody Lighting', 'lightingCinematic': 'Cinematic Lighting', 'lightingStudio': 'Studio Lighting', 'lightingSoft': 'Soft Lighting', 'artQualityTitle': 'Additional Art Quality (Positive)', 'artQualityMasterpiece': 'Masterpiece', 'artQualityBest': 'Best Quality', 'artQualityHigh': 'High Quality', 'artQualityUltraDetailed': 'Ultra-Detailed', 'artQualityDetailed': 'Detailed', 'artQualityIllustration': 'Illustration', 'artQualityConceptArt': 'Concept Art', 'artQualitySharpFocus': 'Sharp Focus', 'generatedPromptsTitle': 'Generated Prompts', 'positivePromptLabel': 'Positive Prompt:', 'copyPositiveButton': 'Copy Positive', 'negativePromptLabel': 'Negative Prompt:', 'copyNegativeButton': 'Copy Negative', 'resetButton': 'Reset to Defaults', 'copiedFeedback': 'Copied!',
+                'nsfwWarningTitle': 'Adult Content Warning', 'nsfwWarningText': 'By enabling NSFW mode, you may generate content intended for audiences 18+. Proceed only if you are of legal age and aware of this.', 'nsfwWarningDontShowAgain': 'Do not show this warning again', 'nsfwWarningProceed': 'I Understand and Wish to Proceed', 'nsfwWarningDecline': 'Decline and Go Back',
+                'geminiAiSectionTitle': '✨ AI Assistance (Gemini)', 'enhancePromptButtonText': '✨ Enhance Positive Prompt with AI', 'generateCharacterIdeaButtonText': '✨ Generate Character Idea with AI', 'geminiApiError': 'Error contacting AI. Please try again.', 'geminiNoSuggestions': 'AI returned no suggestions.', 'geminiNoIdea': 'AI returned no idea.'
+            },
+            'ja': { 
+                'pageTitle': 'ワフ・ポニー・ディフュージョン', 'generalSettingsTitle': '一般設定', 'ratingLabel': '評価:', 'sfwLabel': 'SFW', 'nsfwLabel': 'NSFW', 'sourceLabel': 'ソース（メインスタイル）:', 'sourceAnime': 'アニメ', 'sourceFurry': 'ファーリー', 'sourceCartoon': '漫画', 'sourcePony': 'ポニー', 'numCharsLabel': 'キャラクター数:', 'numChars1Girl': '女の子1人', 'numChars2Girls': '女の子2人', 'numChars3Girls': '女の子3人',
+                'artisticStyleSectionTitle': 'アートスタイル', 'artisticStyleLabel': 'メインスタイル:', 'styleOilPainting': '油絵', 'styleWatercolor': '水彩画', 'styleSketch': 'スケッチ', 'styleLineArt': '線画', 'styleFlatColors': 'フラットカラー', 'stylePixelArt': 'ピクセルアート', 'stylePhotorealistic': '写実的', 'styleCelShading': 'セルシェーディング', 'styleVectorArt': 'ベクターアート',
+                'appearanceTitle': '外観', 'speciesLabel': '種族:', 'speciesHuman': '人間', 'speciesElf': 'エルフ（耳）', 'speciesNeko': 'ネコ（耳、尻尾）', 'speciesKitsune': 'キツネ（耳、尻尾）', 'speciesAngel': '天使（翼）', 'speciesDemon': '悪魔（角、翼）', 'hairColorLabel': '髪の色:', 'hairColorBlonde': '金髪', 'hairColorBrown': '茶髪', 'hairColorBlack': '黒髪', 'hairColorRed': '赤毛', 'hairColorPink': 'ピンク髪', 'hairColorBlue': '青髪', 'hairColorGreen': '緑髪', 'hairColorSilver': '銀髪', 'hairColorWhite': '白髪', 'hairColorPurple': '紫髪', 'hairColorMulticolored': '多色髪', 'hairStyleLabel': '髪型:', 'hairStyleLong': 'ロングヘア', 'hairStyleShort': 'ショートヘア', 'hairStyleMedium': 'ミディアムヘア', 'hairStylePonytail': 'ポニーテール', 'hairStyleTwintails': 'ツインテール', 'hairStyleBraids': '三つ編み', 'hairStyleWavy': 'ウェーブヘア', 'hairStyleStraight': 'ストレートヘア', 'eyeColorLabel': '目の色:', 'eyeColorBlue': '青い目', 'eyeColorGreen': '緑の目', 'eyeColorBrown': '茶色の目', 'eyeColorRed': '赤い目', 'eyeColorPurple': '紫の目', 'eyeColorYellow': '黄色い目', 'eyeColorBlack': '黒い目', 'eyeColorHeterochromia': 'ヘテロクロミア',
+                'skinToneLabel': '肌の色:', 'skinPale': '青白い肌', 'skinLight': '明るい肌', 'skinFair': '色白の肌', 'skinOlive': 'オリーブ色の肌', 'skinBrown': '褐色の肌', 'skinDark': '暗い肌', 'skinTanned': '日焼けした肌',
+                'bodyTitle': '体型', 'ageLabel': '年齢:', 'ageYoungAdult': '若い成人', 'ageAdult': '成人', 'ageMature': '成熟した', 'ageMilf': 'MILF',
+                'buildLabel': '体格:', 'buildSlim': 'スリム', 'buildAverage': '平均的', 'buildAthletic': 'アスレチック', 'buildCurvy': 'カーヴィー', 'buildChubby': 'ぽっちゃり', 'bustSizeLabel': 'バストサイズ:', 'bustSizeDisplayVerySmall': '非常に小さい', 'bustSizeDisplaySmall': '小さい', 'bustSizeDisplayMedium': '普通', 'bustSizeDisplayLarge': '大きい', 'bustSizeDisplayVeryLarge': '非常に大きい', 'clothingAccessoriesTitle': '服装とアクセサリー', 'outfitTypeLabel': '服装の種類:', 'outfitSchoolUniform': '制服', 'outfitMaid': 'メイド服', 'outfitNurse': 'ナース服', 'outfitPolice': '警察官の制服', 'outfitFirefighter': '消防士の制服', 'outfitGardener': '庭師の服', 'outfitSwimsuit': '水着', 'outfitBikini': 'ビキニ', 'outfitCasual': '普段着', 'outfitFantasyArmor': 'ファンタジーアーマー', 'outfitDress': 'ドレス', 'outfitLingerie': 'ランジェリー', 'outfitKimono': '着物', 'outfitNoClothes': '服なし (NSFW)', 'accessoriesLabel': 'アクセサリー:', 'accessoryGlasses': '眼鏡', 'accessoryHat': '帽子', 'accessoryRibbon': 'リボン', 'accessoryChoker': 'チョーカー', 'accessoryThighhighs': 'サイハイソックス', 'accessoryNecklace': 'ネックレス', 'accessoryEarrings': 'イヤリング', 'accessoryGloves': '手袋',
+                'dailyActionsTitle': '日常の行動', 'dailyActionLabel': '行動:', 'actionSports': 'スポーツ中', 'actionWorking': '仕事中', 'actionSweeping': '掃除中', 'actionCooking': '料理中', 'actionReading': '読書中', 'actionSleeping': '睡眠中', 'actionWatchingTV': 'テレビ視聴中', 'actionWindowGazing': '窓の外を眺めている', 'actionBathing': '入浴中', 'actionShowering': 'シャワー中',
+                'nsfwSpecificTitle': 'NSFW特定設定', 'sensualPoseLabel': '官能的なポーズ:', 'sexualActionsLabel': '性的行動:', 'sexualObjectsLabel': '性的オブジェクト:', 'genderEquipmentLabel': '性別/装備:',
+                'nippleTypeLabel': '乳首のタイプ:', 'nippleColorLabel': '乳首の色:', 'nippleSlipLabel': '乳首ポロリ', 'sideboobLabel': 'サイドブーブ',
+                'pubicHairStyleLabel': '陰毛のスタイル:', 'labiaTypeLabel': '陰唇のタイプ:', 'labiaColorLabel': '陰唇の色:', 'fluidsLabel': '体液:', 'noneOption': 'なし',
+                'poseExpressionTitle': 'ポーズと表情', 'poseLabel': 'ポーズ:', 'poseStanding': '立っている', 'poseSitting': '座っている', 'poseLying': '横になっている', 'poseLookingAtViewer': '視聴者を見ている', 'poseFullBody': '全身', 'poseUpperBody': '上半身', 'posePortrait': 'ポートレート', 'poseFromBehind': '後ろから', 'poseCowboyShot': 'カウボーイショット', 'expressionLabel': '表情:', 'expressionSmiling': '笑顔', 'expressionLaughing': '笑っている', 'expressionSad': '悲しい', 'expressionAngry': '怒っている', 'expressionShy': '恥ずかしがり屋', 'expressionBlushing': '赤面', 'expressionWinking': 'ウィンク', 'expressionNeutral': '無表情', 'expressionSurprised': '驚いた', 'expressionSmug': 'ドヤ顔', 'expressionAhegao': 'アヘ顔 (NSFW)', 'scenarioTitle': '背景', 'locationLabel': '場所:', 'locationIndoors': '屋内', 'locationOutdoors': '屋外', 'locationBeach': 'ビーチ', 'locationForest': '森', 'locationCityscape': '街並み', 'locationBedroom': '寝室', 'locationClassroom': '教室', 'locationFantasyWorld': 'ファンタジー世界', 'locationSimpleBg': 'シンプルな背景', 'locationWhiteBg': '白い背景', 'lightingLabel': '照明:', 'lightingDay': '昼', 'lightingNight': '夜', 'lightingSunset': '夕焼け', 'lightingMoody': 'ムーディーな照明', 'lightingCinematic': '映画的な照明', 'lightingStudio': 'スタジオ照明', 'lightingSoft': '柔らかい照明', 'artQualityTitle': '追加の画質 (ポジティブ)', 'artQualityMasterpiece': '傑作', 'artQualityBest': '最高品質', 'artQualityHigh': '高品質', 'artQualityUltraDetailed': '超詳細', 'artQualityDetailed': '詳細', 'artQualityIllustration': 'イラスト', 'artQualityConceptArt': 'コンセプトアート', 'artQualitySharpFocus': 'シャープフォーカス', 'generatedPromptsTitle': '生成されたプロンプト', 'positivePromptLabel': 'ポジティブプロンプト:', 'copyPositiveButton': 'ポジティブをコピー', 'negativePromptLabel': 'ネガティブプロンプト:', 'copyNegativeButton': 'ネガティブをコピー', 'resetButton': 'デフォルトにリセット', 'copiedFeedback': 'コピーしました！',
+                'nsfwWarningTitle': '成人向けコンテンツ警告', 'nsfwWarningText': 'NSFWモードを有効にすると、18歳以上向けのコンテンツを生成する可能性があります。法定年齢に達しており、これを認識している場合のみ続行してください。', 'nsfwWarningDontShowAgain': 'この警告を再度表示しない', 'nsfwWarningProceed': '理解し、続行します', 'nsfwWarningDecline': '拒否して戻る',
+                'geminiAiSectionTitle': '✨ AIアシスタンス (Gemini)', 'enhancePromptButtonText': '✨ AIでポジティブプロンプトを強化', 'generateCharacterIdeaButtonText': '✨ AIでキャラクターアイデアを生成', 'geminiApiError': 'AIへの接続中にエラーが発生しました。もう一度お試しください。', 'geminiNoSuggestions': 'AIから提案がありませんでした。', 'geminiNoIdea': 'AIからアイデアがありませんでした。'
+            },
+            'es': { 
+                'pageTitle': 'Waifu Pony Diffusion', 'generalSettingsTitle': 'Configuración General', 'ratingLabel': 'Clasificación (Rating):', 'sfwLabel': 'SFW', 'nsfwLabel': 'NSFW', 'sourceLabel': 'Fuente (Estilo Principal):', 'sourceAnime': 'Anime', 'sourceFurry': 'Furry', 'sourceCartoon': 'Dibujos Animados', 'sourcePony': 'Pony', 'numCharsLabel': 'Número de Personajes:', 'numChars1Girl': '1 Chica', 'numChars2Girls': '2 Chicas', 'numChars3Girls': '3 Chicas',
+                'artisticStyleSectionTitle': 'Estilo Artístico', 'artisticStyleLabel': 'Estilo Principal:', 'styleOilPainting': 'Pintura al Óleo', 'styleWatercolor': 'Acuarela', 'styleSketch': 'Boceto', 'styleLineArt': 'Arte Lineal', 'styleFlatColors': 'Colores Planos', 'stylePixelArt': 'Pixel Art', 'stylePhotorealistic': 'Fotorrealista', 'styleCelShading': 'Cel Shading', 'styleVectorArt': 'Arte Vectorial',
+                'appearanceTitle': 'Apariencia', 'speciesLabel': 'Especie:', 'speciesHuman': 'Humana', 'speciesElf': 'Elfa (orejas)', 'speciesNeko': 'Neko (orejas, cola)', 'speciesKitsune': 'Kitsune (orejas, cola)', 'speciesAngel': 'Ángel (alas)', 'speciesDemon': 'Demonio (cuernos, alas)', 'hairColorLabel': 'Color de Cabello:', 'hairColorBlonde': 'Rubio', 'hairColorBrown': 'Castaño', 'hairColorBlack': 'Negro', 'hairColorRed': 'Pelirrojo', 'hairColorPink': 'Rosa', 'hairColorBlue': 'Azul', 'hairColorGreen': 'Verde', 'hairColorSilver': 'Plateado', 'hairColorWhite': 'Blanco', 'hairColorPurple': 'Morado', 'hairColorMulticolored': 'Multicolor', 'hairStyleLabel': 'Estilo de Cabello:', 'hairStyleLong': 'Largo', 'hairStyleShort': 'Corto', 'hairStyleMedium': 'Mediano', 'hairStylePonytail': 'Cola de Cabalo', 'hairStyleTwintails': 'Dos Coletas', 'hairStyleBraids': 'Trenzas', 'hairStyleWavy': 'Ondulado', 'hairStyleStraight': 'Liso', 'eyeColorLabel': 'Color de Ojos:', 'eyeColorBlue': 'Azules', 'eyeColorGreen': 'Verdes', 'eyeColorBrown': 'Castaños', 'eyeColorRed': 'Rojos', 'eyeColorPurple': 'Morados', 'eyeColorYellow': 'Amarillos', 'eyeColorBlack': 'Negros', 'eyeColorHeterochromia': 'Heterocromía',
+                'skinToneLabel': 'Tono de Piel:', 'skinPale': 'Piel Pálida', 'skinLight': 'Piel Clara', 'skinFair': 'Piel Blanca', 'skinOlive': 'Piel Oliva', 'skinBrown': 'Piel Morena', 'skinDark': 'Piel Oscura', 'skinTanned': 'Piel Bronceada',
+                'bodyTitle': 'Cuerpo', 'ageLabel': 'Edad:', 'ageYoungAdult': 'Joven Adulta', 'ageAdult': 'Adulta', 'ageMature': 'Madura', 'ageMilf': 'MILF',
+                'buildLabel': 'Complexión:', 'buildSlim': 'Delgada', 'buildAverage': 'Promedio', 'buildAthletic': 'Atlética', 'buildCurvy': 'Curvilínea', 'buildChubby': 'Regordeta', 'bustSizeLabel': 'Tamaño del Busto:', 'bustSizeDisplayVerySmall': 'Muy Pequeño', 'bustSizeDisplaySmall': 'Pequeño', 'bustSizeDisplayMedium': 'Mediano', 'bustSizeDisplayLarge': 'Grande', 'bustSizeDisplayVeryLarge': 'Muy Grande', 'clothingAccessoriesTitle': 'Ropa y Accesorios', 'outfitTypeLabel': 'Tipo de Ropa:', 'outfitSchoolUniform': 'Uniforme Escolar', 'outfitMaid': 'Traje de Sirvienta', 'outfitNurse': 'Enfermera', 'outfitPolice': 'Uniforme de Policía', 'outfitFirefighter': 'Uniforme de Bombero', 'outfitGardener': 'Ropa de Jardinero', 'outfitSwimsuit': 'Traje de Baño', 'outfitBikini': 'Bikini', 'outfitCasual': 'Ropa Casual', 'outfitFantasyArmor': 'Armadura de Fantasía', 'outfitDress': 'Vestido', 'outfitLingerie': 'Lencería', 'outfitKimono': 'Kimono', 'outfitNoClothes': 'Sin Ropa (NSFW)', 'accessoriesLabel': 'Accesorios:', 'accessoryGlasses': 'Gafas', 'accessoryHat': 'Sombrero', 'accessoryRibbon': 'Cinta', 'accessoryChoker': 'Gargantilla', 'accessoryThighhighs': 'Medias Altas', 'accessoryNecklace': 'Collar', 'accessoryEarrings': 'Pendientes', 'accessoryGloves': 'Guantes',
+                'dailyActionsTitle': 'Acciones Diarias', 'dailyActionLabel': 'Acción:', 'actionSports': 'Practicando Deporte', 'actionWorking': 'Trabajando', 'actionSweeping': 'Barriendo', 'actionCooking': 'Cocinando', 'actionReading': 'Leyendo', 'actionSleeping': 'Durmiendo', 'actionWatchingTV': 'Viendo TV', 'actionWindowGazing': 'Mirando por la Ventana', 'actionBathing': 'Bañándose', 'actionShowering': 'Duchándose',
+                'nsfwSpecificTitle': 'Configuración Específica NSFW', 'sensualPoseLabel': 'Poses Sensuales:', 'sexualActionsLabel': 'Acciones Sexuales:', 'sexualObjectsLabel': 'Objetos Sexuales:', 'genderEquipmentLabel': 'Género/Equipamiento:',
+                'nippleTypeLabel': 'Tipo de Pezón:', 'nippleColorLabel': 'Color de Pezón:', 'nippleSlipLabel': 'Nipple Slip', 'sideboobLabel': 'Sideboob',
+                'pubicHairStyleLabel': 'Estilo de Vello Púbico:', 'labiaTypeLabel': 'Tipo de Labios Vaginales:', 'labiaColorLabel': 'Color de Labios Vaginales:', 'fluidsLabel': 'Fluidos:', 'noneOption': 'Ninguna',
+                'poseExpressionTitle': 'Pose y Expresión', 'poseLabel': 'Pose:', 'poseStanding': 'De Pie', 'poseSitting': 'Sentada', 'poseLying': 'Acostada', 'poseLookingAtViewer': 'Mirando al Espectador', 'poseFullBody': 'Cuerpo Completo', 'poseUpperBody': 'Parte Superior del Cuerpo', 'posePortrait': 'Retrato', 'poseFromBehind': 'De Espaldas', 'poseCowboyShot': 'Plano Americano', 'expressionLabel': 'Expresión:', 'expressionSmiling': 'Sonriendo', 'expressionLaughing': 'Riendo', 'expressionSad': 'Triste', 'expressionAngry': 'Enojada', 'expressionShy': 'Tímida', 'expressionBlushing': 'Sonrojada', 'expressionWinking': 'Guiñando', 'expressionNeutral': 'Neutral', 'expressionSurprised': 'Sorprendida', 'expressionSmug': 'Presumida', 'expressionAhegao': 'Ahegao (NSFW)', 'scenarioTitle': 'Escenario', 'locationLabel': 'Ubicación:', 'locationIndoors': 'Interior', 'locationOutdoors': 'Exterior', 'locationBeach': 'Playa', 'locationForest': 'Bosque', 'locationCityscape': 'Paisaje Urbano', 'locationBedroom': 'Dormitorio', 'locationClassroom': 'Aula', 'locationFantasyWorld': 'Mundo de Fantasía', 'locationSimpleBg': 'Fondo Simple', 'locationWhiteBg': 'Fondo Blanco', 'lightingLabel': 'Iluminación:', 'lightingDay': 'Día', 'lightingNight': 'Noche', 'lightingSunset': 'Atardecer', 'lightingMoody': 'Iluminación Ambiental', 'lightingCinematic': 'Iluminación Cinematográfica', 'lightingStudio': 'Iluminación de Estudio', 'lightingSoft': 'Iluminación Suave', 'artQualityTitle': 'Calidad Artística Adicional (Positivo)', 'artQualityMasterpiece': 'Obra Maestra', 'artQualityBest': 'Mejor Calidad', 'artQualityHigh': 'Alta Calidad', 'artQualityUltraDetailed': 'Ultra Detallado', 'artQualityDetailed': 'Detallado', 'artQualityIllustration': 'Ilustración', 'artQualityConceptArt': 'Arte Conceptual', 'artQualitySharpFocus': 'Enfoque Nítido', 'generatedPromptsTitle': 'Prompts Generados', 'positivePromptLabel': 'Prompt Positivo:', 'copyPositiveButton': 'Copiar Positivo', 'negativePromptLabel': 'Prompt Negativo:', 'copyNegativeButton': 'Copiar Negativo', 'resetButton': 'Restablecer a Predeterminados', 'copiedFeedback': '¡Copiado!',
+                'nsfwWarningTitle': 'Advertencia de Contenido Adulto', 'nsfwWarningText': 'Al habilitar el modo NSFW, puedes generar contenido destinado a audiencias mayores de 18 años. Procede solo si tienes la edad legal y eres consciente de ello.', 'nsfwWarningDontShowAgain': 'No volver a mostrar esta advertencia', 'nsfwWarningProceed': 'Entiendo y Deseo Continuar', 'nsfwWarningDecline': 'Rechazar y Volver',
+                'geminiAiSectionTitle': '✨ Asistencia IA (Gemini)', 'enhancePromptButtonText': '✨ Mejorar Prompt Positivo con IA', 'generateCharacterIdeaButtonText': '✨ Generar Idea de Personaje con IA', 'geminiApiError': 'Error al contactar la IA. Inténtalo de nuevo.', 'geminiNoSuggestions': 'La IA no devolvió sugerencias.', 'geminiNoIdea': 'La IA no devolvió una idea.'
+            }
+        };
+
+        const controls = [
+            'ratingSfw', 'ratingNsfw', 'source', 'numChars', 'artisticStyle', 'skinTone', 'tannedSkinCheckbox',
+            'hairColor', 'hairStyle', 'eyeColor', 'age', 'build', 'bustSize',
+            'outfit', 'dailyAction', 
+            'sensualPose', 'sexualActions', 'sexualObjects', 'genderEquipment', 'nippleType', 'nippleColor', 
+            'nippleSlipCheckbox', 'sideboobCheckbox', 'pubicHairStyle', 'labiaType', 'labiaColor', 'fluids', 
+            'pose', 'expression', 'location', 'lighting'
+        ];
+        const checkboxGroups = ['species', 'accessories', 'artQuality'];
+
+        const bustSizeSlider = document.getElementById('bustSize');
+        const bustSizeValueDisplay = document.getElementById('bustSizeValue');
+        const nsfwSpecificControlsDiv = document.getElementById('nsfwSpecificControls');
+        const languageSelector = document.getElementById('languageSelector'); 
+        const themeToggle = document.getElementById('themeToggle');
+        const themeLightButton = document.getElementById('themeLight');
+        const themeDarkButton = document.getElementById('themeDark');
+        const nsfwWarningModal = document.getElementById('nsfwWarningModal');
+        const hideNsfwWarningCheckbox = document.getElementById('hideNsfwWarningCheckbox');
+        const nsfwWarningProceedButton = document.getElementById('nsfwWarningProceedButton');
+        const nsfwWarningDeclineButton = document.getElementById('nsfwWarningDeclineButton');
+        const enhancePromptButton = document.getElementById('enhancePromptButton');
+        const generateCharacterIdeaButton = document.getElementById('generateCharacterIdeaButton');
+        const suggestedTagsContainer = document.getElementById('suggestedTagsContainer');
+        const characterIdeaOutput = document.getElementById('characterIdeaOutput');
+        const enhancePromptLoading = document.getElementById('enhancePromptLoading');
+        const generateIdeaLoading = document.getElementById('generateIdeaLoading');
+        const geminiErrorEnhance = document.getElementById('geminiErrorEnhance');
+        const geminiErrorIdea = document.getElementById('geminiErrorIdea');
+
+
+        let currentLanguage = 'pt-BR';
+        let currentTheme = 'light';
+
+        const defaultValues = {
+            language: 'pt-BR', theme: 'light', rating: 'sfw', source: 'source_anime', numChars: '1girl',
+            artisticStyle: '', skinTone: '', tannedSkinCheckbox: false,
+            species: ['human'], hairColor: 'brown hair', hairStyle: 'long hair', eyeColor: 'brown eyes',
+            age: 'young adult', build: 'average body', bustSize: '3', outfit: 'casual clothes', dailyAction: '',
+            accessories: [], sensualPose: '', sexualActions: '', sexualObjects: '', genderEquipment: '',
+            nippleType: '', nippleColor: '', nippleSlipCheckbox: false, sideboobCheckbox: false,
+            pubicHairStyle: '', labiaType: '', labiaColor: '', fluids: '',
+            pose: 'standing', expression: 'smiling', location: 'outdoors', lighting: 'day',
+            artQuality: ['masterpiece', 'best quality']
+        };
+
+        const bustSizeMap = { 1: 'flat chest', 2: 'small breasts', 3: 'medium breasts', 4: 'large breasts', 5: 'huge breasts' };
+        const bustSizeDisplayMapKeys = { 1: 'bustSizeDisplayVerySmall', 2: 'bustSizeDisplaySmall', 3: 'bustSizeDisplayMedium', 4: 'bustSizeDisplayLarge', 5: 'bustSizeDisplayVeryLarge'};
+
+        function applyTranslations() {
+            const trans = translations[currentLanguage];
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
+                const key = el.dataset.translateKey;
+                if (el.tagName === 'OPTION' && el.closest('#languageSelector')) {
+                    return; 
+                }
+
+                if (trans[key]) {
+                    if (el.tagName === 'OPTION') { 
+                        el.textContent = trans[key];
+                    } else {
+                        let targetTextElement = el;
+                        const innerSpan = el.querySelector('span[data-translate-key="' + key + '"]');
+                        if (innerSpan) {
+                            targetTextElement = innerSpan;
+                        } else if (el.tagName === 'LABEL' && el.childNodes.length > 0 && (el.querySelector('input[type="checkbox"]') || el.querySelector('input[type="radio"]'))) {
+                            let textNodeToUpdate = null;
+                            for(let i = 0; i < el.childNodes.length; i++) {
+                                if(el.childNodes[i].nodeType === Node.TEXT_NODE && el.childNodes[i].textContent.trim() !== '') {
+                                    textNodeToUpdate = el.childNodes[i];
+                                    break;
+                                }
+                            }
+                            if (textNodeToUpdate) {
+                                textNodeToUpdate.textContent = " " + trans[key];
+                            } else {
+                                const unkeyedSpan = Array.from(el.childNodes).find(node => node.tagName === 'SPAN' && !node.dataset.translateKey);
+                                if (unkeyedSpan) {
+                                    unkeyedSpan.textContent = trans[key];
+                                } else if (el.htmlFor && document.getElementById(el.htmlFor)) {
+                                    el.textContent = trans[key];
+                                }
+                            }
+                            return; 
+                        }
+                         targetTextElement.textContent = trans[key];
+                    }
+                }
+            });
+            updateBustSizeDisplay();
+            const copyPositiveBtn = document.querySelector('button[onclick*="positivePrompt"]');
+            const copyNegativeBtn = document.querySelector('button[onclick*="negativePrompt"]');
+            if (copyPositiveBtn) copyPositiveBtn.textContent = trans['copyPositiveButton'];
+            if (copyNegativeBtn) copyNegativeBtn.textContent = trans['copyNegativeButton'];
+        }
+        
+        function updateBustSizeDisplay() {
+            const displayKey = bustSizeDisplayMapKeys[bustSizeSlider.value];
+            bustSizeValueDisplay.textContent = translations[currentLanguage][displayKey] || bustSizeMap[bustSizeSlider.value];
+        }
+        
+        function showNsfwSection() {
+            nsfwSpecificControlsDiv.classList.remove('hidden');
+            generatePrompts();
+        }
+
+        function toggleNSFWControls() {
+            const isNSFW = document.getElementById('ratingNsfw').checked;
+            if (isNSFW) {
+                if (localStorage.getItem('hideNsfwWarning') === 'true') {
+                    showNsfwSection();
+                } else {
+                    nsfwWarningModal.classList.remove('hidden');
+                }
+            } else {
+                nsfwSpecificControlsDiv.classList.add('hidden');
+                ['sensualPose', 'sexualActions', 'sexualObjects', 'genderEquipment', 'nippleType', 'nippleColor', 'pubicHairStyle', 'labiaType', 'labiaColor', 'fluids'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+                ['nippleSlipCheckbox', 'sideboobCheckbox'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.checked = false;
+                });
+                generatePrompts();
+            }
+        }
+
+        nsfwWarningProceedButton.addEventListener('click', () => {
+            if (hideNsfwWarningCheckbox.checked) {
+                localStorage.setItem('hideNsfwWarning', 'true');
+            }
+            nsfwWarningModal.classList.add('hidden');
+            showNsfwSection();
+        });
+
+        nsfwWarningDeclineButton.addEventListener('click', () => {
+            nsfwWarningModal.classList.add('hidden');
+            document.getElementById('ratingSfw').checked = true; 
+            toggleNSFWControls(); 
+        });
+
+
+        function generatePrompts() {
+            let positive = ['score_9', 'score_8_up', 'score_7_up'];
+            let negative = ['score_6', 'score_5', 'score_4', 'worst quality', 'low quality', 'normal quality', 'bad anatomy', 'deformed', 'blurry', 'text', 'watermark', 'signature', 'extra limbs', 'malformed hands', 'ugly', 'mutated hands', 'poorly drawn hands', 'missing fingers', 'extra fingers'];
+
+            const rating = document.querySelector('input[name="rating"]:checked').value;
+            const dailyAction = document.getElementById('dailyAction').value;
+            if(dailyAction) positive.push(dailyAction);
+            
+            const artisticStyle = document.getElementById('artisticStyle').value;
+            if(artisticStyle) positive.push(artisticStyle);
+
+            const skinTone = document.getElementById('skinTone').value;
+            if(skinTone) positive.push(skinTone);
+            if(document.getElementById('tannedSkinCheckbox').checked) positive.push('tanned skin');
+
+
+            if (rating === 'nsfw') {
+                positive.push('rating_explicit');
+                negative.push('rating_safe', 'sfw', 'child', 'loli'); 
+                ['sensualPose', 'sexualActions', 'sexualObjects', 'genderEquipment', 'nippleType', 'nippleColor', 'pubicHairStyle', 'labiaType', 'labiaColor', 'fluids'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        const val = el.value;
+                        if (val) positive.push(val);
+                    }
+                });
+                if (document.getElementById('nippleSlipCheckbox').checked) positive.push('nipple slip');
+                if (document.getElementById('sideboobCheckbox').checked) positive.push('sideboob');
+            } else { 
+                positive.push('rating_safe');
+                negative.push('rating_questionable', 'rating_explicit', 'nsfw', 'child', 'loli', 'sexualized');
+                negative.push('sex', 'masturbation', 'dildo', 'futanari', 'strap-on', 'nipples', 'pubic hair', 'cum', 'semen', 'ahegao', 'erotic', 'pussy', 'labia', 'sideboob');
+            }
+
+            positive.push(document.getElementById('source').value);
+            positive.push(document.getElementById('numChars').value);
+            document.querySelectorAll('input[name="species"]:checked').forEach(el => positive.push(el.value));
+            positive.push(document.getElementById('hairColor').value);
+            positive.push(document.getElementById('hairStyle').value);
+            positive.push(document.getElementById('eyeColor').value);
+            positive.push(document.getElementById('age').value);
+            positive.push(document.getElementById('build').value);
+            positive.push(bustSizeMap[bustSizeSlider.value]);
+            
+            const outfitValue = document.getElementById('outfit').value;
+            if (outfitValue) positive.push(outfitValue);
+            if (rating === 'sfw' && outfitValue === 'no clothes') { 
+                negative.push('clothed');
+            }
+
+            document.querySelectorAll('input[name="accessories"]:checked').forEach(el => positive.push(el.value));
+            positive.push(document.getElementById('pose').value);
+            
+            const expressionValue = document.getElementById('expression').value;
+            if (expressionValue) positive.push(expressionValue);
+
+            positive.push(document.getElementById('location').value);
+            positive.push(document.getElementById('lighting').value);
+            document.querySelectorAll('input[name="artQuality"]:checked').forEach(el => positive.push(el.value));
+
+            const uniquePositive = [...new Set(positive.filter(tag => tag && tag.trim() !== ''))];
+            const uniqueNegative = [...new Set(negative.filter(tag => tag && tag.trim() !== ''))];
+
+            document.getElementById('positivePrompt').value = uniquePositive.join(', ');
+            document.getElementById('negativePrompt').value = uniqueNegative.join(', ');
+        }
+
+        function copyPrompt(event, elementId) {
+            const textarea = document.getElementById(elementId);
+            textarea.select();
+            textarea.setSelectionRange(0, 99999); 
+            try {
+                document.execCommand('copy');
+                const originalButtonText = event.target.textContent;
+                event.target.textContent = translations[currentLanguage]['copiedFeedback'] || 'Copied!';
+                setTimeout(() => {
+                    if(event.target) { 
+                       event.target.textContent = originalButtonText;
+                    }
+                }, 1500);
+            } catch (err) {
+                console.error('Erro ao copiar texto: ', err);
+                const tempMsg = document.createElement('div');
+                tempMsg.textContent = 'Erro ao copiar. Copie manualmente.';
+                tempMsg.style.position = 'fixed'; tempMsg.style.bottom = '20px'; tempMsg.style.left = '50%'; tempMsg.style.transform = 'translateX(-50%)'; tempMsg.style.backgroundColor = 'var(--accent-color)'; tempMsg.style.color = 'var(--bg-secondary)'; tempMsg.style.padding = '10px 20px'; tempMsg.style.borderRadius = '8px'; tempMsg.style.zIndex = '1000';
+                document.body.appendChild(tempMsg);
+                setTimeout(() => tempMsg.remove(), 3000);
+            }
+        }
+        
+        function resetToDefaults() {
+            currentLanguage = defaultValues.language;
+            currentTheme = defaultValues.theme;
+            languageSelector.value = currentLanguage; 
+            updateTheme();
+            applyTranslations();
+
+            document.getElementById('ratingSfw').checked = defaultValues.rating === 'sfw';
+            document.getElementById('ratingNsfw').checked = defaultValues.rating === 'nsfw';
+            document.getElementById('source').value = defaultValues.source;
+            document.getElementById('numChars').value = defaultValues.numChars;
+            document.getElementById('artisticStyle').value = defaultValues.artisticStyle;
+            document.getElementById('skinTone').value = defaultValues.skinTone;
+            document.getElementById('tannedSkinCheckbox').checked = defaultValues.tannedSkinCheckbox;
+            document.querySelectorAll('input[name="species"]').forEach(el => el.checked = defaultValues.species.includes(el.value));
+            document.getElementById('hairColor').value = defaultValues.hairColor;
+            document.getElementById('hairStyle').value = defaultValues.hairStyle;
+            document.getElementById('eyeColor').value = defaultValues.eyeColor;
+            document.getElementById('age').value = defaultValues.age;
+            document.getElementById('build').value = defaultValues.build;
+            bustSizeSlider.value = defaultValues.bustSize;
+            document.getElementById('outfit').value = defaultValues.outfit;
+            document.getElementById('dailyAction').value = defaultValues.dailyAction;
+            document.querySelectorAll('input[name="accessories"]').forEach(el => el.checked = defaultValues.accessories.includes(el.value));
+            
+            ['sensualPose', 'sexualActions', 'sexualObjects', 'genderEquipment', 'nippleType', 'nippleColor', 'pubicHairStyle', 'labiaType', 'labiaColor', 'fluids'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = defaultValues[id];
+            });
+            ['nippleSlipCheckbox', 'sideboobCheckbox'].forEach(id => {
+                 const el = document.getElementById(id);
+                if (el) el.checked = defaultValues[id];
+            });
+
+
+            document.getElementById('pose').value = defaultValues.pose;
+            document.getElementById('expression').value = defaultValues.expression;
+            document.getElementById('location').value = defaultValues.location;
+            document.getElementById('lighting').value = defaultValues.lighting;
+            document.querySelectorAll('input[name="artQuality"]').forEach(el => el.checked = defaultValues.artQuality.includes(el.value));
+            
+            if(hideNsfwWarningCheckbox) hideNsfwWarningCheckbox.checked = false; 
+            updateBustSizeDisplay();
+            toggleNSFWControls(); 
+            suggestedTagsContainer.innerHTML = '';
+            characterIdeaOutput.textContent = '';
+            geminiErrorEnhance.classList.add('hidden');
+            geminiErrorIdea.classList.add('hidden');
+        }
+
+        function updateTheme() {
+            document.documentElement.classList.remove('light', 'dark');
+            document.documentElement.classList.add(currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            themeLightButton.classList.toggle('active', currentTheme === 'light');
+            themeDarkButton.classList.toggle('active', currentTheme === 'dark');
+        }
+
+        async function callGeminiAPI(geminiPrompt, loadingElement, errorElement, successCallback) {
+            loadingElement.classList.remove('hidden');
+            enhancePromptButton.disabled = true;
+            generateCharacterIdeaButton.disabled = true;
+            errorElement.classList.add('hidden');
+            errorElement.textContent = ''; 
+
+            try {
+                let chatHistory = [{ role: "user", parts: [{ text: geminiPrompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error("Gemini API Error Response:", errorData);
+                    throw new Error(`API Error: ${response.status} ${response.statusText}. ${errorData?.error?.message || ''}`);
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    successCallback(text);
+                } else {
+                    console.error("Unexpected Gemini API response structure:", result);
+                    throw new Error(translations[currentLanguage]['geminiNoSuggestions'] || 'AI returned no suggestions/idea.');
+                }
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                errorElement.textContent = `${translations[currentLanguage]['geminiApiError'] || 'Error contacting AI.'} ${error.message}`;
+                errorElement.classList.remove('hidden');
+            } finally {
+                loadingElement.classList.add('hidden');
+                enhancePromptButton.disabled = false;
+                generateCharacterIdeaButton.disabled = false;
+            }
+        }
+
+        enhancePromptButton.addEventListener('click', async () => {
+            const currentPositivePrompt = document.getElementById('positivePrompt').value;
+            if (!currentPositivePrompt.trim()) {
+                geminiErrorEnhance.textContent = "Prompt positivo está vazio."; 
+                geminiErrorEnhance.classList.remove('hidden');
+                return;
+            }
+            
+            const geminiPrompt = `Considerando o seguinte prompt para geração de imagem de uma personagem de anime: "${currentPositivePrompt}". Sugira de 3 a 5 tags descritivas adicionais, separadas por vírgula, que poderiam enriquecer o prompt com mais detalhes artísticos, singularidade ou impacto emocional. Foque em elementos visuais. Retorne apenas as tags, separadas por vírgula e usando underscores para espaços (ex: long_hair). Não inclua explicações ou frases, apenas as tags.`;
+            
+            await callGeminiAPI(geminiPrompt, enhancePromptLoading, geminiErrorEnhance, (responseText) => {
+                suggestedTagsContainer.innerHTML = ''; 
+                const tags = responseText.split(',').map(tag => tag.trim().replace(/\s+/g, '_')).filter(tag => tag); // Ensure underscores
+                if (tags.length > 0) {
+                    tags.forEach(tag => {
+                        const tagButton = document.createElement('button');
+                        tagButton.classList.add('suggested-tag');
+                        tagButton.textContent = tag;
+                        tagButton.onclick = () => {
+                            const positivePromptTextarea = document.getElementById('positivePrompt');
+                            if (positivePromptTextarea.value.trim() && !positivePromptTextarea.value.endsWith(',')) {
+                                positivePromptTextarea.value += ', ';
+                            }
+                            positivePromptTextarea.value += tag + ', ';
+                            generatePrompts(); 
+                            tagButton.remove(); 
+                        };
+                        suggestedTagsContainer.appendChild(tagButton);
+                    });
+                } else {
+                    geminiErrorEnhance.textContent = translations[currentLanguage]['geminiNoSuggestions'] || 'AI returned no suggestions.';
+                    geminiErrorEnhance.classList.remove('hidden');
+                }
+            });
+        });
+
+        generateCharacterIdeaButton.addEventListener('click', async () => {
+            const species = Array.from(document.querySelectorAll('input[name="species"]:checked')).map(el => el.value).join(', ');
+            const age = document.getElementById('age').selectedOptions[0].text; 
+            const outfit = document.getElementById('outfit').selectedOptions[0].text;
+            const expression = document.getElementById('expression').selectedOptions[0].text;
+            const artisticStyle = document.getElementById('artisticStyle').selectedOptions[0].text;
+            const hairColor = document.getElementById('hairColor').selectedOptions[0].text;
+
+            let traits = [];
+            if (species) traits.push(`espécie: ${species}`);
+            if (age && age !== translations[currentLanguage]['noneOption']) traits.push(`idade: ${age}`);
+            if (outfit && outfit !== translations[currentLanguage]['noneOption']) traits.push(`roupa principal: ${outfit}`);
+            if (expression && expression !== translations[currentLanguage]['noneOption']) traits.push(`expressão: ${expression}`);
+            if (artisticStyle && artisticStyle !== translations[currentLanguage]['noneOption']) traits.push(`estilo artístico: ${artisticStyle}`);
+            if (hairColor && hairColor !== translations[currentLanguage]['noneOption']) traits.push(`cor do cabelo: ${hairColor}`);
+
+            if (traits.length === 0) {
+                characterIdeaOutput.textContent = "Selecione algumas características primeiro."; 
+                return;
+            }
+
+            const geminiPrompt = `Baseado nas seguintes características de uma personagem de anime: ${traits.join(', ')}, gere uma lista de 5 a 10 tags no estilo Danbooru que descrevam um conceito de personagem criativo e coeso. As tags devem focar em aparência, personalidade, e um possível tema ou ação. Retorne apenas as tags, separadas por vírgulas e usando underscores para espaços (ex: long_hair, school_uniform). Não inclua explicações ou frases, apenas as tags.`;
+
+            await callGeminiAPI(geminiPrompt, generateIdeaLoading, geminiErrorIdea, (responseText) => {
+                characterIdeaOutput.textContent = responseText.replace(/\s+/g, ' ').trim(); // Clean up extra spaces
+            });
+        });
+
+
+        controls.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                 if (element.type === 'radio' || element.type === 'checkbox') {
+                    document.querySelectorAll(`input[name="${element.name}"], input#${id}`).forEach(interactiveEl => {
+                         interactiveEl.addEventListener('change', id.startsWith('rating') ? toggleNSFWControls : generatePrompts);
+                    });
+                } else { 
+                    element.addEventListener('input', generatePrompts);
+                }
+            }
+        });
+        
+        checkboxGroups.forEach(groupName => {
+            document.querySelectorAll(`input[name="${groupName}"]`).forEach(el => {
+                el.addEventListener('change', generatePrompts);
+            });
+        });
+        
+        bustSizeSlider.addEventListener('input', () => {
+            updateBustSizeDisplay();
+            generatePrompts(); 
+        });
+
+        languageSelector.addEventListener('change', (event) => { 
+            currentLanguage = event.target.value;
+            localStorage.setItem('language', currentLanguage); 
+            applyTranslations();
+        });
+
+        themeToggle.addEventListener('click', (event) => {
+            let clickedTheme = null;
+            if (event.target.closest('#themeLight')) clickedTheme = 'light';
+            else if (event.target.closest('#themeDark')) clickedTheme = 'dark';
+            if (clickedTheme && currentTheme !== clickedTheme) {
+                currentTheme = clickedTheme;
+                updateTheme();
+            }
+        });
+
+        document.getElementById('resetButton').addEventListener('click', resetToDefaults);
+
+        window.onload = () => {
+            currentTheme = localStorage.getItem('theme') || defaultValues.theme;
+            currentLanguage = localStorage.getItem('language') || defaultValues.language;
+            languageSelector.value = currentLanguage; 
+
+            if(nsfwSpecificControlsDiv){ 
+                 resetToDefaults(); 
+            } else {
+                console.warn("NSFW controls or other critical elements not found on load. Page might not function fully.");
+                updateTheme();
+                applyTranslations();
+                generatePrompts(); 
+            }
+        };
+    </script>
+</body>
+</html>
