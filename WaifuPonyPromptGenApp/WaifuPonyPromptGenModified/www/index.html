@@ -16,9 +16,9 @@
         label, .label-text { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-weight: 500; }
         select, input[type="text"], input[type="range"] { width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 1px solid var(--input-border); border-radius: 8px; box-sizing: border-box; background-color: var(--input-bg); color: var(--text-secondary); transition: border-color 0.3s, background-color 0.3s, color 0.3s; }
         select:focus, input[type="text"]:focus, input[type="range"]:focus { border-color: var(--accent-color); outline: none; }
-        
+
         html.dark select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a0aec0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.5em 1.5em; padding-right: 2.5rem; }
-        
+
         .checkbox-group label, .radio-group label { display: inline-flex; align-items: center; margin-right: 1rem; margin-bottom: 0.5rem; font-weight: normal; color: var(--text-muted); }
         .checkbox-group input[type="checkbox"], .radio-group input[type="radio"] { margin-right: 0.5rem; accent-color: var(--accent-color); }
         textarea { width: 100%; height: 150px; padding: 0.75rem; margin-bottom: 0.5rem; border: 1px solid var(--input-border); border-radius: 8px; resize: vertical; background-color: var(--input-bg); color: var(--text-secondary); }
@@ -41,14 +41,14 @@
         .hidden { display: none; }
         .top-controls { position: absolute; top: 1rem; right: 1rem; display: flex; gap: 0.5rem; align-items: center; z-index: 50; }
         .language-selector-container select, .theme-toggle { padding: 0.5rem; border-radius: 6px; border: 1px solid var(--input-border); background-color: var(--bg-secondary); cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: var(--text-muted); font-size: 0.9rem; }
-        .theme-toggle { display: flex; align-items: center; } 
+        .theme-toggle { display: flex; align-items: center; }
         .theme-toggle span { padding: 0.3rem 0.6rem; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); border-radius: 4px; }
         .theme-toggle span.active  { background-color: var(--accent-color); color: var(--bg-secondary); }
         .theme-toggle svg { width: 1.25rem; height: 1.25rem; fill: var(--text-muted); }
         .theme-toggle span.active svg { fill: var(--bg-secondary); }
         html.light { --bg-primary: var(--bg-primary-light); --bg-secondary: var(--bg-secondary-light); --text-primary: var(--text-primary-light); --text-secondary: var(--text-secondary-light); --text-muted: var(--text-muted-light); --border: var(--border-light); --input-bg: var(--input-bg-light); --input-border: var(--input-border-light); --accent-color: var(--accent-color-light); --accent-color-darker: var(--accent-color-darker-light); --danger-color: var(--danger-color-light); --danger-color-darker: var(--danger-color-darker-light); }
         html.dark { --bg-primary: var(--bg-primary-dark); --bg-secondary: var(--bg-secondary-dark); --text-primary: var(--text-primary-dark); --text-secondary: var(--text-secondary-dark); --text-muted: var(--text-muted-dark); --border: var(--border-dark); --input-bg: var(--input-bg-dark); --input-border: var(--input-border-dark); --accent-color: var(--accent-color-dark); --accent-color-darker: var(--accent-color-darker-dark); --danger-color: var(--danger-color-dark); --danger-color-darker: var(--danger-color-darker-dark); }
-        
+
         .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 100; }
         .modal-content { background-color: var(--bg-secondary); padding: 2rem; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: left; max-width: 500px; width: 90%; }
         .modal-content h3 { color: var(--text-primary); font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; }
@@ -343,7 +343,7 @@
                 <option value="showering" data-translate-key="actionShowering">Tomando Ducha</option>
             </select>
         </div>
-        
+
         <div id="nsfwSpecificControls" class="hidden">
             <h2 data-translate-key="nsfwSpecificTitle">Configurações NSFW Específicas</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -522,7 +522,7 @@
                 </select>
             </div>
         </div>
-        
+
         <h2 data-translate-key="artQualityTitle">Qualidade Artística Adicional (Positivo)</h2>
         <div class="checkbox-group grid grid-cols-fill gap-x-4">
             <label><input type="checkbox" name="artQuality" value="masterpiece" checked> <span data-translate-key="artQualityMasterpiece">Masterpiece</span></label>
@@ -550,7 +550,7 @@
         <div class="mt-6 text-center">
             <button id="resetButton" class="secondary" data-translate-key="resetButton">Resetar para Padrões</button>
         </div>
-        
+
         <footer>
             <p data-translate-key="developedBy">Desenvolvido por BlackSkull90</p>
         </footer>
@@ -607,7 +607,7 @@
                 'loadingText': 'Loading...',
                 'developedBy': 'Developed by BlackSkull90'
             },
-            'ja': { 
+            'ja': {
                 'pageTitle': 'ワフ・ポニー・ディフュージョン', 'generalSettingsTitle': '一般設定', 'ratingLabel': '評価:', 'sfwLabel': 'SFW', 'nsfwLabel': 'NSFW', 'sourceLabel': 'ソース（メインスタイル）:', 'sourceAnime': 'アニメ', 'sourceFurry': 'ファーリー', 'sourceCartoon': '漫画', 'sourcePony': 'ポニー', 'numCharsLabel': 'キャラクター数:', 'numChars1Girl': '女の子1人', 'numChars2Girls': '女の子2人', 'numChars3Girls': '女の子3人',
                 'artisticStyleSectionTitle': 'アートスタイル', 'artisticStyleLabel': 'メインスタイル:', 'styleOilPainting': '油絵', 'styleWatercolor': '水彩画', 'styleSketch': 'スケッチ', 'styleLineArt': '線画', 'styleFlatColors': 'フラットカラー', 'stylePixelArt': 'ピクセルアート', 'stylePhotorealistic': '写実的', 'styleCelShading': 'セルシェーディング', 'styleVectorArt': 'ベクターアート',
                 'appearanceTitle': '外観', 'speciesLabel': '種族:', 'speciesHuman': '人間', 'speciesElf': 'エルフ（耳）', 'speciesNeko': 'ネコ（耳、尻尾）', 'speciesKitsune': 'キツネ（耳、尻尾）', 'speciesAngel': '天使（翼）', 'speciesDemon': '悪魔（角、翼）', 'hairColorLabel': '髪の色:', 'hairColorBlonde': '金髪', 'hairColorBrown': '茶髪', 'hairColorBlack': '黒髪', 'hairColorRed': '赤毛', 'hairColorPink': 'ピンク髪', 'hairColorBlue': '青髪', 'hairColorGreen': '緑髪', 'hairColorSilver': '銀髪', 'hairColorWhite': '白髪', 'hairColorPurple': '紫髪', 'hairColorMulticolored': '多色髪', 'hairStyleLabel': '髪型:', 'hairStyleLong': 'ロングヘア', 'hairStyleShort': 'ショートヘア', 'hairStyleMedium': 'ミディアムヘア', 'hairStylePonytail': 'ポニーテール', 'hairStyleTwintails': 'ツインテール', 'hairStyleBraids': '三つ編み', 'hairStyleWavy': 'ウェーブヘア', 'hairStyleStraight': 'ストレートヘア', 'eyeColorLabel': '目の色:', 'eyeColorBlue': '青い目', 'eyeColorGreen': '緑の目', 'eyeColorBrown': '茶色の目', 'eyeColorRed': '赤い目', 'eyeColorPurple': '紫の目', 'eyeColorYellow': '黄色い目', 'eyeColorBlack': '黒い目', 'eyeColorHeterochromia': 'ヘテロクロミア',
@@ -623,7 +623,7 @@
                 'loadingText': '読み込み中...',
                 'developedBy': '開発者 BlackSkull90'
             },
-            'es': { 
+            'es': {
                 'pageTitle': 'Waifu Pony Diffusion', 'generalSettingsTitle': 'Configuración General', 'ratingLabel': 'Clasificación (Rating):', 'sfwLabel': 'SFW', 'nsfwLabel': 'NSFW', 'sourceLabel': 'Fuente (Estilo Principal):', 'sourceAnime': 'Anime', 'sourceFurry': 'Furry', 'sourceCartoon': 'Dibujos Animados', 'sourcePony': 'Pony', 'numCharsLabel': 'Número de Personajes:', 'numChars1Girl': '1 Chica', 'numChars2Girls': '2 Chicas', 'numChars3Girls': '3 Chicas',
                 'artisticStyleSectionTitle': 'Estilo Artístico', 'artisticStyleLabel': 'Estilo Principal:', 'styleOilPainting': 'Pintura al Óleo', 'styleWatercolor': 'Acuarela', 'styleSketch': 'Boceto', 'styleLineArt': 'Arte Lineal', 'styleFlatColors': 'Colores Planos', 'stylePixelArt': 'Pixel Art', 'stylePhotorealistic': 'Fotorrealista', 'styleCelShading': 'Cel Shading', 'styleVectorArt': 'Arte Vectorial',
                 'appearanceTitle': 'Apariencia', 'speciesLabel': 'Especie:', 'speciesHuman': 'Humana', 'speciesElf': 'Elfa (orejas)', 'speciesNeko': 'Neko (orejas, cola)', 'speciesKitsune': 'Kitsune (orejas, cola)', 'speciesAngel': 'Ángel (alas)', 'speciesDemon': 'Demonio (cuernos, alas)', 'hairColorLabel': 'Color de Cabello:', 'hairColorBlonde': 'Rubio', 'hairColorBrown': 'Castaño', 'hairColorBlack': 'Negro', 'hairColorRed': 'Pelirrojo', 'hairColorPink': 'Rosa', 'hairColorBlue': 'Azul', 'hairColorGreen': 'Verde', 'hairColorSilver': 'Plateado', 'hairColorWhite': 'Blanco', 'hairColorPurple': 'Morado', 'hairColorMulticolored': 'Multicolor', 'hairStyleLabel': 'Estilo de Cabello:', 'hairStyleLong': 'Largo', 'hairStyleShort': 'Corto', 'hairStyleMedium': 'Mediano', 'hairStylePonytail': 'Cola de Cabalo', 'hairStyleTwintails': 'Dos Coletas', 'hairStyleBraids': 'Trenzas', 'hairStyleWavy': 'Ondulado', 'hairStyleStraight': 'Liso', 'eyeColorLabel': 'Color de Ojos:', 'eyeColorBlue': 'Azules', 'eyeColorGreen': 'Verdes', 'eyeColorBrown': 'Castaños', 'eyeColorRed': 'Rojos', 'eyeColorPurple': 'Morados', 'eyeColorYellow': 'Amarillos', 'eyeColorBlack': 'Negros', 'eyeColorHeterochromia': 'Heterocromía',
@@ -644,9 +644,9 @@
         const controls = [
             'ratingSfw', 'ratingNsfw', 'source', 'numChars', 'artisticStyle', 'skinTone', 'tannedSkinCheckbox',
             'hairColor', 'hairStyle', 'eyeColor', 'age', 'build', 'bustSize',
-            'outfit', 'dailyAction', 
-            'sensualPose', 'sexualActions', 'sexualObjects', 'genderEquipment', 'nippleType', 'nippleColor', 
-            'nippleSlipCheckbox', 'sideboobCheckbox', 'pubicHairStyle', 'labiaType', 'labiaColor', 'fluids', 
+            'outfit', 'dailyAction',
+            'sensualPose', 'sexualActions', 'sexualObjects', 'genderEquipment', 'nippleType', 'nippleColor',
+            'nippleSlipCheckbox', 'sideboobCheckbox', 'pubicHairStyle', 'labiaType', 'labiaColor', 'fluids',
             'pose', 'expression', 'location', 'lighting'
         ];
         const checkboxGroups = ['species', 'accessories', 'artQuality'];
@@ -654,7 +654,7 @@
         const bustSizeSlider = document.getElementById('bustSize');
         const bustSizeValueDisplay = document.getElementById('bustSizeValue');
         const nsfwSpecificControlsDiv = document.getElementById('nsfwSpecificControls');
-        const languageSelector = document.getElementById('languageSelector'); 
+        const languageSelector = document.getElementById('languageSelector');
         const themeToggle = document.getElementById('themeToggle');
         const themeLightButton = document.getElementById('themeLight');
         const themeDarkButton = document.getElementById('themeDark');
@@ -695,11 +695,11 @@
             document.querySelectorAll('[data-translate-key]').forEach(el => {
                 const key = el.dataset.translateKey;
                 if (el.tagName === 'OPTION' && el.closest('#languageSelector')) {
-                    return; 
+                    return;
                 }
 
                 if (trans[key]) {
-                    if (el.tagName === 'OPTION') { 
+                    if (el.tagName === 'OPTION') {
                         el.textContent = trans[key];
                     } else {
                         let targetTextElement = el;
@@ -724,7 +724,7 @@
                                     el.textContent = trans[key];
                                 }
                             }
-                            return; 
+                            return;
                         }
                          targetTextElement.textContent = trans[key];
                     }
@@ -736,12 +736,12 @@
             if (copyPositiveBtn) copyPositiveBtn.textContent = trans['copyPositiveButton'];
             if (copyNegativeBtn) copyNegativeBtn.textContent = trans['copyNegativeButton'];
         }
-        
+
         function updateBustSizeDisplay() {
             const displayKey = bustSizeDisplayMapKeys[bustSizeSlider.value];
             bustSizeValueDisplay.textContent = translations[currentLanguage][displayKey] || bustSizeMap[bustSizeSlider.value];
         }
-        
+
         function showNsfwSection() {
             nsfwSpecificControlsDiv.classList.remove('hidden');
             generatePrompts();
@@ -779,8 +779,8 @@
 
         nsfwWarningDeclineButton.addEventListener('click', () => {
             nsfwWarningModal.classList.add('hidden');
-            document.getElementById('ratingSfw').checked = true; 
-            toggleNSFWControls(); 
+            document.getElementById('ratingSfw').checked = true;
+            toggleNSFWControls();
         });
 
 
@@ -791,7 +791,7 @@
             const rating = document.querySelector('input[name="rating"]:checked').value;
             const dailyAction = document.getElementById('dailyAction').value;
             if(dailyAction) positive.push(dailyAction);
-            
+
             const artisticStyle = document.getElementById('artisticStyle').value;
             if(artisticStyle) positive.push(artisticStyle);
 
@@ -802,7 +802,7 @@
 
             if (rating === 'nsfw') {
                 positive.push('rating_explicit');
-                negative.push('rating_safe', 'sfw', 'child', 'loli'); 
+                negative.push('rating_safe', 'sfw', 'child', 'loli');
                 ['sensualPose', 'sexualActions', 'sexualObjects', 'genderEquipment', 'nippleType', 'nippleColor', 'pubicHairStyle', 'labiaType', 'labiaColor', 'fluids'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) {
@@ -812,7 +812,7 @@
                 });
                 if (document.getElementById('nippleSlipCheckbox').checked) positive.push('nipple slip');
                 if (document.getElementById('sideboobCheckbox').checked) positive.push('sideboob');
-            } else { 
+            } else {
                 positive.push('rating_safe');
                 negative.push('rating_questionable', 'rating_explicit', 'nsfw', 'child', 'loli', 'sexualized');
                 negative.push('sex', 'masturbation', 'dildo', 'futanari', 'strap-on', 'nipples', 'pubic hair', 'cum', 'semen', 'ahegao', 'erotic', 'pussy', 'labia', 'sideboob');
@@ -827,16 +827,16 @@
             positive.push(document.getElementById('age').value);
             positive.push(document.getElementById('build').value);
             positive.push(bustSizeMap[bustSizeSlider.value]);
-            
+
             const outfitValue = document.getElementById('outfit').value;
             if (outfitValue) positive.push(outfitValue);
-            if (rating === 'sfw' && outfitValue === 'no clothes') { 
+            if (rating === 'sfw' && outfitValue === 'no clothes') {
                 negative.push('clothed');
             }
 
             document.querySelectorAll('input[name="accessories"]:checked').forEach(el => positive.push(el.value));
             positive.push(document.getElementById('pose').value);
-            
+
             const expressionValue = document.getElementById('expression').value;
             if (expressionValue) positive.push(expressionValue);
 
@@ -854,13 +854,13 @@
         function copyPrompt(event, elementId) {
             const textarea = document.getElementById(elementId);
             textarea.select();
-            textarea.setSelectionRange(0, 99999); 
+            textarea.setSelectionRange(0, 99999);
             try {
                 document.execCommand('copy');
                 const originalButtonText = event.target.textContent;
                 event.target.textContent = translations[currentLanguage]['copiedFeedback'] || 'Copied!';
                 setTimeout(() => {
-                    if(event.target) { 
+                    if(event.target) {
                        event.target.textContent = originalButtonText;
                     }
                 }, 1500);
@@ -873,11 +873,11 @@
                 setTimeout(() => tempMsg.remove(), 3000);
             }
         }
-        
+
         function resetToDefaults() {
             currentLanguage = defaultValues.language;
             currentTheme = defaultValues.theme;
-            languageSelector.value = currentLanguage; 
+            languageSelector.value = currentLanguage;
             updateTheme();
             applyTranslations();
 
@@ -898,7 +898,7 @@
             document.getElementById('outfit').value = defaultValues.outfit;
             document.getElementById('dailyAction').value = defaultValues.dailyAction;
             document.querySelectorAll('input[name="accessories"]').forEach(el => el.checked = defaultValues.accessories.includes(el.value));
-            
+
             ['sensualPose', 'sexualActions', 'sexualObjects', 'genderEquipment', 'nippleType', 'nippleColor', 'pubicHairStyle', 'labiaType', 'labiaColor', 'fluids'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = defaultValues[id];
@@ -914,10 +914,10 @@
             document.getElementById('location').value = defaultValues.location;
             document.getElementById('lighting').value = defaultValues.lighting;
             document.querySelectorAll('input[name="artQuality"]').forEach(el => el.checked = defaultValues.artQuality.includes(el.value));
-            
-            if(hideNsfwWarningCheckbox) hideNsfwWarningCheckbox.checked = false; 
+
+            if(hideNsfwWarningCheckbox) hideNsfwWarningCheckbox.checked = false;
             updateBustSizeDisplay();
-            toggleNSFWControls(); 
+            toggleNSFWControls();
             suggestedTagsContainer.innerHTML = '';
             characterIdeaOutput.textContent = '';
             geminiErrorEnhance.classList.add('hidden');
@@ -940,26 +940,26 @@
                     document.querySelectorAll(`input[name="${element.name}"], input#${id}`).forEach(interactiveEl => {
                          interactiveEl.addEventListener('change', id.startsWith('rating') ? toggleNSFWControls : generatePrompts);
                     });
-                } else { 
+                } else {
                     element.addEventListener('input', generatePrompts);
                 }
             }
         });
-        
+
         checkboxGroups.forEach(groupName => {
             document.querySelectorAll(`input[name="${groupName}"]`).forEach(el => {
                 el.addEventListener('change', generatePrompts);
             });
         });
-        
+
         bustSizeSlider.addEventListener('input', () => {
             updateBustSizeDisplay();
-            generatePrompts(); 
+            generatePrompts();
         });
 
-        languageSelector.addEventListener('change', (event) => { 
+        languageSelector.addEventListener('change', (event) => {
             currentLanguage = event.target.value;
-            localStorage.setItem('language', currentLanguage); 
+            localStorage.setItem('language', currentLanguage);
             applyTranslations();
         });
 
@@ -978,15 +978,15 @@
         window.onload = () => {
             currentTheme = localStorage.getItem('theme') || defaultValues.theme;
             currentLanguage = localStorage.getItem('language') || defaultValues.language;
-            languageSelector.value = currentLanguage; 
+            languageSelector.value = currentLanguage;
 
-            if(nsfwSpecificControlsDiv){ 
-                 resetToDefaults(); 
+            if(nsfwSpecificControlsDiv){
+                 resetToDefaults();
             } else {
                 console.warn("NSFW controls or other critical elements not found on load. Page might not function fully.");
                 updateTheme();
                 applyTranslations();
-                generatePrompts(); 
+                generatePrompts();
             }
         };
 

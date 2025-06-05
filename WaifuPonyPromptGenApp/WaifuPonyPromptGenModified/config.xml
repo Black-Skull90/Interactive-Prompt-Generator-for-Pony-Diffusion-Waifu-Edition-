@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="io.cordova.waifuponypromptgen.modified" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Waifu Pony Prompt Gen (Mod)</name>
+    <description>
+        A modified prompt generator for Waifu Pony Diffusion (AI features removed, layout enhanced, Ad outline).
+    </description>
+    <author email="dev@example.com" href="http://example.com">
+        BlackSkull90 (Packaged by AI - Modified)
+    </author>
+    <content src="index.html" />
+
+    <!-- Essential for internet access (Tailwind CDN, Ads) -->
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+
+    <!-- Standard Cordova intents -->
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+
+    <platform name="android">
+        <allow-intent href="market:*" />
+
+        <!--
+        App Icons would be defined here or placed in res/icon/android.
+        Example:
+        <icon density="ldpi" src="res/icon/android/drawable-ldpi-icon.png" />
+        ... (other densities) ...
+        -->
+
+        <!-- AdMob Specific Configurations (Conceptual - often handled by plugin) -->
+        <!--
+        Some plugins might require you to add your AdMob App ID here,
+        though modern plugins often handle this via plugin variables during installation
+        or expect it in AndroidManifest.xml (which the plugin would modify).
+        Example if needed:
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <meta-data
+                android:name="com.google.android.gms.ads.APPLICATION_ID"
+                android:value="YOUR_ADMOB_APP_ID_HERE"/>
+        </config-file>
+        -->
+
+        <!-- Ensure network state permissions if not added by AdMob plugin automatically -->
+        <!-- <preference name="android-manifest/application/uses-permission" value="android.permission.ACCESS_NETWORK_STATE" /> -->
+        <!-- <preference name="android-manifest/application/uses-permission" value="android.permission.INTERNET" /> -->
+
+    </platform>
+
+    <preference name="permissions" value="none"/> <!-- Base permission -->
+    <preference name="ScrollEnabled" value="true" />
+    <preference name="BackupWebStorage" value="local" />
+
+    <!-- Ad Plugin (Conceptual - actual plugin addition handles this) -->
+    <!-- <plugin name="cordova-plugin-admob-free" spec="^X.Y.Z" /> -->
+
+</widget>
