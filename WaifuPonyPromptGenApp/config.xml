@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="io.cordova.waifuponypromptgen" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Waifu Pony Prompt Gen</name>
+    <description>
+        A prompt generator for Waifu Pony Diffusion.
+    </description>
+    <author email="dev@example.com" href="http://example.com">
+        BlackSkull90 (Packaged by AI)
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    <platform name="android">
+        <allow-intent href="market:*" />
+        <!--
+        Icons would be defined here or placed in res/icon/android.
+        Example:
+        <icon density="ldpi" src="res/icon/android/drawable-ldpi-icon.png" />
+        <icon density="mdpi" src="res/icon/android/drawable-mdpi-icon.png" />
+        <icon density="hdpi" src="res/icon/android/drawable-hdpi-icon.png" />
+        <icon density="xhdpi" src="res/icon/android/drawable-xhdpi-icon.png" />
+        <icon density="xxhdpi" src="res/icon/android/drawable-xxhdpi-icon.png" />
+        <icon density="xxxhdpi" src="res/icon/android/drawable-xxxhdpi-icon.png" />
+        -->
+    </platform>
+    <preference name="permissions" value="none"/>
+    <!-- Allow network access -->
+    <preference name="OverrideUserAgent" value="Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.58 Mobile Safari/537.36" />
+    <preference name="AllowInlineMediaPlayback" value="true" />
+    <preference name="MediaPlaybackRequiresUserAction" value="false" />
+    <preference name="ShouldAllowDeprecatedTLS" value="false" />
+    <preference name="BackupWebStorage" value="local" />
+    <preference name="ScrollEnabled" value="true" />
+
+    <!-- Add any necessary plugins here if needed in future -->
+    <!-- e.g. <plugin name="cordova-plugin-device" spec="^2.0.2" /> -->
+
+</widget>
